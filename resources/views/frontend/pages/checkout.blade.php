@@ -136,7 +136,22 @@
                                             </li>
 
                                             @if(session('coupon'))
-                                            <li class="coupon_price" data-price="{{session('coupon')['value']}}">Bạn tiết kiệm được<span>{{number_format(session('coupon')['value'],0)}}đ</span></li>
+                                            @php($coupon = session('coupon'))
+                                            <li class="coupon_applied">
+                                                Mã giảm giá
+                                                <span><strong>{{ $coupon['code'] }}</strong></span>
+                                            </li>
+                                            <li class="coupon_discount">
+                                                Giá trị áp dụng
+                                                <span>
+                                                    @if(($coupon['type'] ?? null) === 'percent')
+                                                        {{ rtrim(rtrim(number_format((float) ($coupon['configured_value'] ?? 0), 2, '.', ''), '0'), '.') }}%
+                                                    @else
+                                                        {{ number_format((float) ($coupon['configured_value'] ?? $coupon['value']), 0) }}đ
+                                                    @endif
+                                                </span>
+                                            </li>
+                                            <li class="coupon_price" data-price="{{ $coupon['value'] }}">Bạn tiết kiệm được<span>{{number_format($coupon['value'],0)}}đ</span></li>
                                             @endif
                                             @php
                                                 $total_amount=Helper::totalCartPrice();

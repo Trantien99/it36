@@ -193,6 +193,8 @@ class CouponController extends Controller
             session()->put('coupon',[
                 'id'=>$coupon->id,
                 'code'=>$coupon->code,
+                'type'=>$coupon->type,
+                'configured_value'=>$coupon->value,
                 'value'=>$coupon->discount($total_price)
             ]);
             request()->session()->flash('success','Mã giảm giá áp dụng thành công');
