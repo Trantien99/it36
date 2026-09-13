@@ -142,12 +142,12 @@
             @endforeach
 
         </ol>
-        <div class="carousel-inner" role="listbox">
+        <div class="carousel-inner" role="listbox" style="min-height: 560px; max-height: 560px; height: 560px;">
                 @foreach($banners as $key=>$banner)
                 <div class="carousel-item {{(($key==0)? 'active' : '')}}">
                     <img class="first-slide" src="{{$banner->photo}}" alt="{{$banner->title}}">
-                    <div class="carousel-caption text-left">
-                        <div class="container">
+                    <div class="carousel-caption text-left oveflow-hidden">
+                        <div class="container oveflow-hidden">
                             <div class="gslider-content">
                                 <h1 class="wow fadeInDown">{{$banner->title}}</h1>
                                 <div class="gslider-copy">{!! html_entity_decode($banner->description) !!}</div>
