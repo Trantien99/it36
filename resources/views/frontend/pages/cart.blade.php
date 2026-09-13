@@ -67,7 +67,7 @@
 												</div>
 												<!--/ End Input Order -->
 											</td>
-											<td class="total-amount cart_single_price" data-title="Total"><span class="money">{{number_format($cart['amount']),0}}đ</span></td>
+											<td class="total-amount cart_single_price" data-title="Total"><span class="money">{{number_format($cart['amount'],0)}}đ</span></td>
 
                                             <td class="action" data-title="Remove">
                                                 <button type="submit" form="cart-delete-{{$cart->id}}" class="action-button-reset"><i class="ti-trash remove-icon"></i></button>
@@ -143,11 +143,7 @@
 												$total_amount=$total_amount-Session::get('coupon')['value'];
 											}
 										@endphp
-										@if(session()->has('coupon'))
-											<li class="last" id="order_total_price">Bạn cần thanh toán<span>{{number_format($total_amount,0)}}đ</span></li>
-										@else
-											<li class="last" id="order_total_price">Bạn cần thanh toán<span>{{number_format($total_amount,0)}}đ</span></li>
-										@endif
+										<li class="last" id="order_total_price">Bạn cần thanh toán<span>{{number_format($total_amount,0)}}đ</span></li>
 									</ul>
 									<div class="button5">
 										<a href="{{route('checkout')}}" class="btn">Thanh Toán</a>
