@@ -209,7 +209,22 @@ class OrderController extends Controller
 
         // dd($users);
         request()->session()->flash('success','Bạn đã đặt hàng thành công');
-        return redirect()->route('home');
+        return redirect()->route('order.success', $order->id);
+    }
+
+    /**
+     * Display the order success screen.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function success($id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', auth()->user()->id)
+            ->firstOrFail();
+
+        return view('frontend.pages.order-success', compact('order'));
     }
 
     /**

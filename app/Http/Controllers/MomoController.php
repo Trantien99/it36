@@ -113,6 +113,7 @@ class MomoController extends Controller
             session()->forget('cart');
             session()->forget('coupon');
             request()->session()->flash('success', 'Thanh toán MoMo test thành công.');
+            return redirect()->route('order.success', $order->id);
         } else {
             $message = (string) $request->input('message', 'Thanh toán MoMo chưa hoàn tất hoặc đã bị hủy.');
             request()->session()->flash('error', $message);
