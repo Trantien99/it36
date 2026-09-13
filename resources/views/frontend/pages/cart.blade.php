@@ -36,9 +36,13 @@
 							</tr>
 						</thead>
 						<tbody id="cart_item_list">
+							@php
+								$cartItems = Helper::getAllProductFromCart();
+							@endphp
 							<form action="{{route('cart.update')}}" method="POST">
 								@csrf
-								@forelse(Helper::getAllProductFromCart() as $key=>$cart)
+								@if($cartItems && $cartItems->isNotEmpty())
+									@foreach($cartItems as $key=>$cart)
 										<tr>
 											@php
 											$photo=explode(',',$cart->product['photo']);
@@ -82,21 +86,22 @@
 											<button class="btn float-right" type="submit">Cập Nhật</button>
 										</td>
 									</tr>
-								@empty
-										<tr>
-											<td class="text-center">
-												Không có giỏ hàng nào có sẵn. <a href="{{route('product-grids')}}" style="color:blue;">Tiếp tục mua sắm.</a>
+									@endforeach
+								@else
+									<tr>
+										<td class="text-center">
+											Không có giỏ hàng nào có sẵn. <a href="{{route('product-grids')}}" style="color:blue;">Tiếp tục mua sắm.</a>
 
-											</td>
-										</tr>
-								@endforelse
+										</td>
+									</tr>
+								@endif
 
 							</form>
 						</tbody>
 					</table>
                     <!--/ End Shopping Summery -->
-                    @if(Helper::getAllProductFromCart())
-                        @foreach(Helper::getAllProductFromCart() as $cart)
+                    @if($cartItems && $cartItems->isNotEmpty())
+                        @foreach($cartItems as $cart)
                             <form id="cart-delete-{{$cart->id}}" action="{{route('cart-delete',$cart->id)}}" method="POST" class="d-none">
                                 @csrf
                                 @method('DELETE')
