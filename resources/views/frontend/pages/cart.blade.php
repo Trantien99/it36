@@ -36,10 +36,13 @@
 							</tr>
 						</thead>
 						<tbody id="cart_item_list">
+							@php
+								$cartItems = Helper::getAllProductFromCart();
+							@endphp
 							<form action="{{route('cart.update')}}" method="POST">
 								@csrf
-								@if(Helper::getAllProductFromCart())
-									@foreach(Helper::getAllProductFromCart() as $key=>$cart)
+								@if($cartItems && $cartItems->isNotEmpty())
+									@foreach($cartItems as $key=>$cart)
 										<tr>
 											@php
 											$photo=explode(',',$cart->product['photo']);
@@ -67,7 +70,7 @@
 												</div>
 												<!--/ End Input Order -->
 											</td>
-											<td class="total-amount cart_single_price" data-title="Total"><span class="money">{{number_format($cart['amount']),0}}đ</span></td>
+											<td class="total-amount cart_single_price" data-title="Total"><span class="money">{{number_format($cart['amount'],0)}}đ</span></td>
 
                                             <td class="action" data-title="Remove">
                                                 <button type="submit" form="cart-delete-{{$cart->id}}" class="action-button-reset"><i class="ti-trash remove-icon"></i></button>
@@ -97,8 +100,8 @@
 						</tbody>
 					</table>
                     <!--/ End Shopping Summery -->
-                    @if(Helper::getAllProductFromCart())
-                        @foreach(Helper::getAllProductFromCart() as $cart)
+                    @if($cartItems && $cartItems->isNotEmpty())
+                        @foreach($cartItems as $cart)
                             <form id="cart-delete-{{$cart->id}}" action="{{route('cart-delete',$cart->id)}}" method="POST" class="d-none">
                                 @csrf
                                 @method('DELETE')
