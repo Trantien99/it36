@@ -38,8 +38,7 @@
 						<tbody id="cart_item_list">
 							<form action="{{route('cart.update')}}" method="POST">
 								@csrf
-								@if(Helper::getAllProductFromCart())
-									@foreach(Helper::getAllProductFromCart() as $key=>$cart)
+								@forelse(Helper::getAllProductFromCart() as $key=>$cart)
 										<tr>
 											@php
 											$photo=explode(',',$cart->product['photo']);
@@ -73,7 +72,6 @@
                                                 <button type="submit" form="cart-delete-{{$cart->id}}" class="action-button-reset"><i class="ti-trash remove-icon"></i></button>
                                             </td>
 										</tr>
-									@endforeach
 									<tr>
 										<td></td>
 										<td></td>
@@ -84,14 +82,14 @@
 											<button class="btn float-right" type="submit">Cập Nhật</button>
 										</td>
 									</tr>
-								@else
+								@empty
 										<tr>
 											<td class="text-center">
 												Không có giỏ hàng nào có sẵn. <a href="{{route('product-grids')}}" style="color:blue;">Tiếp tục mua sắm.</a>
 
 											</td>
 										</tr>
-								@endif
+								@endforelse
 
 							</form>
 						</tbody>
