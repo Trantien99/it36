@@ -138,7 +138,9 @@
 										<li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Tổng Số Tiền <span>{{number_format(Helper::totalCartPrice(),0)}}đ</span></li>
 
 										@if(session()->has('coupon'))
-										@php($coupon = session('coupon'))
+										@php
+											$coupon = session('coupon');
+										@endphp
 										<li class="coupon_applied">Mã giảm giá<span><strong>{{ $coupon['code'] }}</strong></span></li>
 										<li class="coupon_discount">Giá trị áp dụng<span>
 											@if(($coupon['type'] ?? null) === 'percent')

@@ -136,7 +136,9 @@
                                             </li>
 
                                             @if(session('coupon'))
-                                            @php($coupon = session('coupon'))
+                                            @php
+                                                $coupon = session('coupon');
+                                            @endphp
                                             <li class="coupon_applied">
                                                 Mã giảm giá
                                                 <span><strong>{{ $coupon['code'] }}</strong></span>
