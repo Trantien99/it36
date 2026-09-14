@@ -5,7 +5,7 @@
 <div class="card">
     <h5 class="card-header">Thêm sản phẩm</h5>
     <div class="card-body">
-      <form method="post" action="{{route('product.store')}}">
+      <form method="post" action="{{route('product.store')}}" enctype="multipart/form-data">
         {{csrf_field()}}
         <div class="form-group">
           <label for="inputTitle" class="col-form-label">Tiêu đề <span class="text-danger">*</span></label>
@@ -116,15 +116,24 @@
         <div class="form-group">
           <label for="inputPhoto" class="col-form-label">Ảnh <span class="text-danger">*</span></label>
           <div class="input-group">
-              <span class="input-group-btn">
+              <input id="thumbnail" class="form-control" type="text" name="photo" value="{{old('photo')}}" placeholder="Đường dẫn ảnh từ thư viện hoặc chọn trên device">
+              <span class="input-group-btn ml-2">
+                  <label for="photo_file" class="btn btn-outline-secondary mb-0">
+                      <i class="fa fa-upload"></i> Chọn trên device
+                  </label>
+              </span>
+              <span class="input-group-btn ml-2">
                   <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary">
-                  <i class="fa fa-picture-o"></i> Lựa chọn
+                      <i class="fa fa-picture-o"></i> Chọn từ thư viện
                   </a>
               </span>
-          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{old('photo')}}">
-        </div>
-        <div id="holder" style="margin-top:15px;max-height:100px;"></div>
+          </div>
+          <input id="photo_file" type="file" name="photo_file" accept="image/*" class="d-none">
+          <div id="holder" style="margin-top:15px;max-height:100px;"></div>
           @error('photo')
+          <span class="text-danger">{{$message}}</span>
+          @enderror
+          @error('photo_file')
           <span class="text-danger">{{$message}}</span>
           @enderror
         </div>
@@ -160,6 +169,14 @@
 
 <script>
     $('#lfm').filemanager('image');
+
+    $('#photo_file').on('change', function () {
+      var file = this.files && this.files[0];
+      if (file) {
+        $('#thumbnail').val(file.name);
+        $('#holder').html('<div class="alert alert-success py-2 mb-0">Đã chọn ảnh: ' + file.name + '</div>');
+      }
+    });
 
     $(document).ready(function() {
       $('#summary').summernote({

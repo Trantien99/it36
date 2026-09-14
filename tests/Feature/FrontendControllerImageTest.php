@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\ProductController;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -79,5 +80,43 @@ class FrontendControllerImageTest extends TestCase
 
         @unlink($absolutePath);
         @unlink($generatedPath);
+    }
+
+    public function testProductControllerCreatesGeneratedProductDetailImagesWhenSavingPhoto()
+    {
+        $testingDirectory = public_path('storage/testing');
+        if (!is_dir($testingDirectory)) {
+            mkdir($testingDirectory, 0755, true);
+        }
+
+        $relativePath = '/storage/testing/product-create-test.jpg';
+        $absolutePath = public_path(ltrim($relativePath, '/'));
+        $sourceImage = imagecreatetruecolor(120, 160);
+
+        $background = imagecolorallocate($sourceImage, 237, 242, 251);
+        $accent = imagecolorallocate($sourceImage, 45, 90, 156);
+        imagefilledrectangle($sourceImage, 0, 0, 120, 160, $background);
+        imagefilledellipse($sourceImage, 60, 80, 52, 90, $accent);
+        imagejpeg($sourceImage, $absolutePath, 88);
+        imagedestroy($sourceImage);
+
+        $cacheDirectory = public_path('storage/generated/product-detail');
+        $filesBefore = glob($cacheDirectory . DIRECTORY_SEPARATOR . '*');
+
+        $controller = new ProductController();
+        $method = new ReflectionMethod($controller, 'ensureGeneratedProductDetailImages');
+        $method->setAccessible(true);
+        $method->invoke($controller, $relativePath);
+
+        $filesAfter = glob($cacheDirectory . DIRECTORY_SEPARATOR . '*');
+        $newFiles = array_values(array_diff($filesAfter, $filesBefore));
+
+        $this->assertNotEmpty($newFiles);
+        $this->assertTrue(count(array_filter($newFiles, fn ($file) => is_file($file))) > 0);
+
+        @unlink($absolutePath);
+        foreach ($newFiles as $generatedFile) {
+            @unlink($generatedFile);
+        }
     }
 }

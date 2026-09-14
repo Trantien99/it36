@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuildsListingMedia;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    use BuildsListingMedia;
     /**
      * Display a listing of the resource.
      *
@@ -86,7 +88,8 @@ class ProductController extends Controller
             'title'=>'string|required',
             'summary'=>'string|required',
             'description'=>'string|nullable',
-            'photo'=>'string|required',
+            'photo'=>'nullable|string|required_without:photo_file',
+            'photo_file'=>'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'size'=>'nullable',
             'stock'=>"required|numeric",
             'cat_id'=>'required|exists:categories,id',
@@ -100,6 +103,9 @@ class ProductController extends Controller
         ]);
 
         $data=$request->all();
+
+        $data = $this->storeProductPhotoFile($request, $data);
+
         $slug=Str::slug($request->title);
         $count=Product::where('slug',$slug)->count();
         if($count>0){
@@ -118,6 +124,7 @@ class ProductController extends Controller
         // return $data;
         $status=Product::create($data);
         if($status){
+            $this->ensureGeneratedProductDetailImages($data['photo'] ?? '');
             request()->session()->flash('success','Thêm sản phâm thành công');
         }
         else{
@@ -125,6 +132,44 @@ class ProductController extends Controller
         }
         return redirect()->route('product.index');
 
+    }
+
+    protected function storeProductPhotoFile(Request $request, array $data)
+    {
+        if (!$request->hasFile('photo_file')) {
+            return $data;
+        }
+
+        $file = $request->file('photo_file');
+        $yearMonth = date('Y/m');
+        $directory = public_path('storage/photos/' . $yearMonth);
+
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            return $data;
+        }
+
+        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $file->move($directory, $filename);
+
+        $data['photo'] = '/storage/photos/' . $yearMonth . '/' . $filename;
+
+        return $data;
+    }
+
+    protected function ensureGeneratedProductDetailImages($photoList)
+    {
+        $photos = array_values(array_filter(array_map('trim', explode(',', (string) $photoList))));
+
+        foreach ($photos as $photo) {
+            $meta = $this->getPublicImageMeta($photo);
+            if (!$meta) {
+                continue;
+            }
+
+            if ($this->shouldEnhanceGalleryImage($meta['width'], $meta['height'])) {
+                $this->createEnhancedGalleryImage($meta);
+            }
+        }
     }
 
     /**
@@ -170,7 +215,8 @@ class ProductController extends Controller
             'title'=>'string|required',
             'summary'=>'string|required',
             'description'=>'string|nullable',
-            'photo'=>'string|required',
+            'photo'=>'nullable|string|required_without:photo_file',
+            'photo_file'=>'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'size'=>'nullable',
             'stock'=>"required|numeric",
             'cat_id'=>'required|exists:categories,id',
@@ -184,6 +230,9 @@ class ProductController extends Controller
         ]);
 
         $data=$request->all();
+
+        $data = $this->storeProductPhotoFile($request, $data);
+
         $data['is_featured']=$request->input('is_featured',0);
         $size=$request->input('size');
         if($size){
@@ -195,6 +244,7 @@ class ProductController extends Controller
         // return $data;
         $status=$product->fill($data)->save();
         if($status){
+            $this->ensureGeneratedProductDetailImages($data['photo'] ?? '');
             request()->session()->flash('success','Cập nhật sản phẩm thành công');
         }
         else{

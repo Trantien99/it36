@@ -122,9 +122,11 @@
                                         <ul>
 										    <li class="order_subtotal" data-price="{{Helper::totalCartPrice()}}">Tiền Sản Phẩm<span>{{number_format(Helper::totalCartPrice(),0)}}đ</span></li>
                                             <li class="shipping">
-                                                Phí Giao Hàng
+                                                <div class="d-flex">
+                                                    Phí Giao Hàng <span class="required"> *</span>
+                                                </div>
                                                 @if(count(Helper::shipping())>0 && Helper::cartCount()>0)
-                                                    <select name="shipping" class="nice-select">
+                                                    <select name="shipping" class="nice-select" required>
                                                         <option value="">Lựa chọn địa chỉ của bạn</option>
                                                         @foreach(Helper::shipping() as $shipping)
                                                         <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: {{$shipping->price}}đ</option>
@@ -348,13 +350,16 @@
 		}
 	</script>
 	<script>
+		function formatMoney(amount) {
+			return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+		}
+
 		$(document).ready(function(){
 			$('.shipping select[name=shipping]').change(function(){
 				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
 				let subtotal = parseFloat( $('.order_subtotal').data('price') );
 				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0;
-				// alert(coupon);
-				$('#order_total_price span').text((subtotal + cost-coupon).toFixed(0)+'đ');
+				$('#order_total_price span').text(formatMoney(subtotal + cost - coupon));
 			});
 
 		});

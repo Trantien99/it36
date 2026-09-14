@@ -92,7 +92,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $rules = [
             'first_name'=>'string|required',
             'last_name'=>'string|required',
             'address1'=>'string|required',
@@ -102,7 +102,13 @@ class OrderController extends Controller
             'post_code'=>'string|nullable',
             'email'=>'string|required',
             'payment_method'=>'required|in:cod,paypal,momo'
-        ]);
+        ];
+
+        if (Shipping::count() > 0) {
+            $rules['shipping'] = 'required|exists:shippings,id';
+        }
+
+        $this->validate($request, $rules);
         // return $request->all();
 
         if(empty(Cart::where('user_id',auth()->user()->id)->where('order_id',null)->first())){

@@ -43,7 +43,7 @@
 								@csrf
 								@if($cartItems && $cartItems->isNotEmpty())
 									@foreach($cartItems as $key=>$cart)
-										<tr>
+										<tr class="cart-item-row" data-price="{{ $cart['price'] }}">
 											@php
 											$photo=explode(',',$cart->product['photo']);
 											@endphp
@@ -56,7 +56,7 @@
 											<td class="qty" data-title="Qty"><!-- Input Order -->
 												<div class="input-group">
 													<div class="button minus">
-														<button type="button" class="btn btn-primary btn-number" disabled="disabled" data-type="minus" data-field="quant[{{$key}}]">
+														<button type="button" class="btn btn-primary btn-number" data-type="minus" data-field="quant[{{$key}}]" @if($cart->quantity <= 1) disabled="disabled" @endif>
 															<i class="ti-minus"></i>
 														</button>
 													</div>
@@ -275,15 +275,64 @@
   		$('select.nice-select').niceSelect();
 	</script>
 	<script>
+		function formatMoney(amount) {
+			return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+		}
+
+		function updateCartRowsAndTotals() {
+			let subtotal = 0;
+
+			$('.cart-item-row').each(function() {
+				const row = $(this);
+				const price = parseFloat(row.data('price')) || 0;
+				const quantity = parseInt(row.find('.input-number').val(), 10) || 0;
+				const amount = price * quantity;
+
+				subtotal += amount;
+				row.find('.cart_single_price .money').text(formatMoney(amount));
+			});
+
+			$('.order_subtotal').attr('data-price', subtotal);
+			$('.order_subtotal span').text(formatMoney(subtotal));
+
+			const coupon = parseFloat($('.coupon_price').data('price')) || 0;
+			const total = Math.max(subtotal - coupon, 0);
+			$('#order_total_price span').text(formatMoney(total));
+		}
+
 		$(document).ready(function(){
 			$('.shipping select[name=shipping]').change(function(){
 				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
 				let subtotal = parseFloat( $('.order_subtotal').data('price') );
 				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0;
-				// alert(coupon);
-				$('#order_total_price span').text('$'+(subtotal + cost-coupon).toFixed(2));
+				$('#order_total_price span').text(formatMoney(subtotal + cost - coupon));
 			});
 
+			$('.input-number').on('input change', function() {
+				const name = $(this).attr('name');
+				const minValue = parseInt($(this).attr('data-min'), 10) || 1;
+				const maxValue = parseInt($(this).attr('data-max'), 10) || 1000000;
+				let valueCurrent = parseInt($(this).val(), 10);
+
+				if (isNaN(valueCurrent) || valueCurrent < minValue) {
+					valueCurrent = minValue;
+					$(this).val(valueCurrent);
+				}
+
+				if (valueCurrent > maxValue) {
+					valueCurrent = maxValue;
+					$(this).val(valueCurrent);
+				}
+
+				const minusBtn = $(".btn-number[data-type='minus'][data-field='" + name + "']");
+				const plusBtn = $(".btn-number[data-type='plus'][data-field='" + name + "']");
+				minusBtn.prop('disabled', valueCurrent <= minValue);
+				plusBtn.prop('disabled', valueCurrent >= maxValue);
+
+				updateCartRowsAndTotals();
+			});
+
+			updateCartRowsAndTotals();
 		});
 
 	</script>

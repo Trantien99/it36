@@ -4929,3 +4929,8 @@ Version:1.0
 /*=============================
 	End Footer CSS
 ===============================*/
+.required {
+    color: #ff2c18;
+    display: inline-block;
+    font-size: 16px;
+}

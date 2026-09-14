@@ -5,7 +5,7 @@
 <div class="card">
     <h5 class="card-header">Chỉnh sửa sản phẩm</h5>
     <div class="card-body">
-      <form method="post" action="{{route('product.update',$product->id)}}">
+      <form method="post" action="{{route('product.update',$product->id)}}" enctype="multipart/form-data">
         @csrf
         @method('PATCH')
         <div class="form-group">
@@ -123,15 +123,24 @@
         <div class="form-group">
           <label for="inputPhoto" class="col-form-label">Ảnh <span class="text-danger">*</span></label>
           <div class="input-group">
-              <span class="input-group-btn">
+              <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$product->photo}}" placeholder="Đường dẫn ảnh từ thư viện hoặc chọn trên device">
+              <span class="input-group-btn ml-2">
+                  <label for="photo_file" class="btn btn-outline-secondary mb-0 text-white">
+                      <i class="fa fa-upload"></i> Chọn trên device
+                  </label>
+              </span>
+              <span class="input-group-btn ml-2">
                   <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary text-white">
-                  <i class="fas fa-image"></i> Lựa chọn
+                      <i class="fas fa-image"></i> Chọn từ thư viện
                   </a>
               </span>
-          <input id="thumbnail" class="form-control" type="text" name="photo" value="{{$product->photo}}">
-        </div>
-        <div id="holder" style="margin-top:15px;max-height:100px;"></div>
+          </div>
+          <input id="photo_file" type="file" name="photo_file" accept="image/*" class="d-none">
+          <div id="holder" style="margin-top:15px;max-height:100px;"></div>
           @error('photo')
+          <span class="text-danger">{{$message}}</span>
+          @enderror
+          @error('photo_file')
           <span class="text-danger">{{$message}}</span>
           @enderror
         </div>
@@ -167,6 +176,14 @@
 
 <script>
     $('#lfm').filemanager('image');
+
+    $('#photo_file').on('change', function () {
+      var file = this.files && this.files[0];
+      if (file) {
+        $('#thumbnail').val(file.name);
+        $('#holder').html('<div class="alert alert-success py-2 mb-0">Đã chọn ảnh: ' + file.name + '</div>');
+      }
+    });
 
     $(document).ready(function() {
     $('#summary').summernote({
