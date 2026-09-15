@@ -25,9 +25,17 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with('shipping')
-            ->orderBy('id', 'DESC')
-            ->paginate(10);
+        $statusFilter = trim((string) request()->query('status', 'all'));
+        $allowedStatuses = array_keys(Order::ORDER_STATUS_LABELS);
+        if ($statusFilter !== 'all' && !in_array($statusFilter, $allowedStatuses, true)) {
+            $statusFilter = 'all';
+        }
+
+        $ordersQuery = Order::with('shipping')->orderBy('id', 'DESC');
+        if ($statusFilter !== 'all') {
+            $ordersQuery->where('status', $statusFilter);
+        }
+        $orders = $ordersQuery->paginate(10)->withQueryString();
 
         $statusSummary = Order::query()
             ->selectRaw('status, COUNT(*) as total')
@@ -71,7 +79,8 @@ class OrderController extends Controller
             'averageOrderValue',
             'todayOrders',
             'latestOrder',
-            'fulfillmentRate'
+            'fulfillmentRate',
+            'statusFilter'
         ));
     }
 

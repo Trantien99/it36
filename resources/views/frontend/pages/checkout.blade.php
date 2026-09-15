@@ -129,7 +129,7 @@
                                                     <select name="shipping" class="nice-select" required>
                                                         <option value="">Lựa chọn địa chỉ của bạn</option>
                                                         @foreach(Helper::shipping() as $shipping)
-                                                        <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: {{$shipping->price}}đ</option>
+                                                        <option value="{{$shipping->id}}" class="shippingOption" data-price="{{$shipping->price}}">{{$shipping->type}}: {{number_format((float) $shipping->price, 0, ',', '.')}}đ</option>
                                                         @endforeach
                                                     </select>
                                                 @else

@@ -883,51 +883,51 @@
 
         <div class="order-toolbar">
           <div class="order-filter-group" role="group" aria-label="Lọc trạng thái đơn hàng">
-            <button type="button" class="order-filter-chip active" data-status="all">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'all' ? 'active' : '' }}" data-status="all">
               Tất cả
               <span>{{ number_format($totalOrders, 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="pending_confirmation">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'pending_confirmation' ? 'active' : '' }}" data-status="pending_confirmation">
               Chờ xác nhận
               <span>{{ number_format((int) $statusSummary->get('pending_confirmation', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="preparing">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'preparing' ? 'active' : '' }}" data-status="preparing">
               Đang chuẩn bị
               <span>{{ number_format((int) $statusSummary->get('preparing', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="ready">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'ready' ? 'active' : '' }}" data-status="ready">
               Đã sẵn sàng
               <span>{{ number_format((int) $statusSummary->get('ready', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="shipping">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'shipping' ? 'active' : '' }}" data-status="shipping">
               Đang giao hàng
               <span>{{ number_format((int) $statusSummary->get('shipping', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="delivery_failed">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'delivery_failed' ? 'active' : '' }}" data-status="delivery_failed">
               Giao hàng thất bại
               <span>{{ number_format((int) $statusSummary->get('delivery_failed', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="returning">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'returning' ? 'active' : '' }}" data-status="returning">
               Đang hoàn hàng
               <span>{{ number_format((int) $statusSummary->get('returning', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="returned">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'returned' ? 'active' : '' }}" data-status="returned">
               Hoàn hàng thành công
               <span>{{ number_format((int) $statusSummary->get('returned', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="delivery_success">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'delivery_success' ? 'active' : '' }}" data-status="delivery_success">
               Giao hàng thành công
               <span>{{ number_format((int) $statusSummary->get('delivery_success', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="completed">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'completed' ? 'active' : '' }}" data-status="completed">
               Hoàn thành
               <span>{{ number_format((int) $statusSummary->get('completed', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="cancelled">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'cancelled' ? 'active' : '' }}" data-status="cancelled">
               Đã hủy
               <span>{{ number_format((int) $statusSummary->get('cancelled', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="ended">
+            <button type="button" class="order-filter-chip {{ $statusFilter === 'ended' ? 'active' : '' }}" data-status="ended">
               Kết thúc
               <span>{{ number_format((int) $statusSummary->get('ended', 0), 0, ',', '.') }}</span>
             </button>
@@ -1124,11 +1124,16 @@
 
         $('.order-filter-chip').on('click', function () {
           const $chip = $(this);
+          const status = $chip.data('status');
+          const url = new URL(window.location.href);
 
-          statusFilter.value = $chip.data('status');
-          $('.order-filter-chip').removeClass('active');
-          $chip.addClass('active');
-          orderTable.draw();
+          if (status === 'all') {
+            url.searchParams.delete('status');
+          } else {
+            url.searchParams.set('status', status);
+          }
+          url.searchParams.delete('page');
+          window.location.href = url.toString();
         });
       }
 
