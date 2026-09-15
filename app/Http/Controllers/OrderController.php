@@ -338,33 +338,32 @@ class OrderController extends Controller
             'order_number' => 'required|string',
         ]);
 
-        $order=Order::where('user_id',auth()->user()->id)->where('order_number',trim((string) $request->order_number))->first();
-        if($order){
-            if($order->status=="new"){
-            request()->session()->flash('success','Đơn hàng của bạn đã được đặt. Vui lòng chờ.');
-            return redirect()->route('order.track');
+        $order = Order::where('order_number', trim((string) $request->order_number))->first();
 
-            }
-            elseif($order->status=="process"){
-                request()->session()->flash('success','Đơn hàng của bạn đang được xử lý. Vui lòng chờ.');
-                return redirect()->route('order.track');
-
-            }
-            elseif($order->status=="delivered"){
-                request()->session()->flash('success','Đơn hàng của bạn đã được giao. Xin chân thành cảm ơn.');
-                return redirect()->route('order.track');
-
-            }
-            else{
-                request()->session()->flash('error','Đơn hàng của bạn đã bị hủy, vui lòng thử lại.');
-                return redirect()->route('order.track');
-
-            }
-        }
-        else{
-            request()->session()->flash('error','Mã đơn hàng không hợp lệ, vui lòng thử lại.');
+        if (!$order) {
+            request()->session()->flash('error', 'Mã đơn hàng không hợp lệ, vui lòng thử lại.');
             return back();
         }
+
+        if (auth()->user()->role !== 'admin' && $order->user_id !== auth()->id()) {
+            request()->session()->flash('error', 'Mã đơn hàng không thuộc tài khoản của bạn.');
+            return back();
+        }
+
+        $statusMap = [
+            'new' => 'Đơn hàng của bạn đã được đặt. Vui lòng chờ.',
+            'process' => 'Đơn hàng của bạn đang được xử lý. Vui lòng chờ.',
+            'delivered' => 'Đơn hàng của bạn đã được giao. Xin chân thành cảm ơn.',
+            'cancel' => 'Đơn hàng của bạn đã bị hủy, vui lòng thử lại.',
+        ];
+
+        $statusText = $statusMap[$order->status] ?? 'Đơn hàng đang được cập nhật trạng thái.';
+
+        return view('frontend.pages.order-track', [
+            'order' => $order,
+            'statusText' => $statusText,
+            'searched' => true,
+        ]);
     }
 
     // PDF generate

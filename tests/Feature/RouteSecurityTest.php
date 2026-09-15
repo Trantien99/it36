@@ -35,4 +35,5 @@ class RouteSecurityTest extends TestCase
         $this->get(route('cart-delete', 1))->assertStatus(405);
         $this->get(route('wishlist-delete', 1))->assertStatus(405);
     }
+
 }
