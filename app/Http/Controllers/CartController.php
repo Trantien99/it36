@@ -171,7 +171,30 @@ class CartController extends Controller
                 }
             }
 
+            if (session()->has('coupon')) {
+                $coupon = session('coupon');
+                $newTotal = \Helper::totalCartPrice();
+
+                if (($coupon['type'] ?? null) === 'percent') {
+                    $coupon['value'] = ($coupon['configured_value'] / 100) * $newTotal;
+                } elseif (($coupon['type'] ?? null) === 'fixed') {
+                    $coupon['value'] = min((float) ($coupon['configured_value'] ?? 0), $newTotal);
+                } else {
+                    $coupon['value'] = 0;
+                }
+
+                session()->put('coupon', $coupon);
+            }
+
+            if ($request->boolean('redirect_to_checkout')) {
+                return redirect()->route('checkout');
+            }
+
             return back()->with($error)->with('success', $success);
+        }
+
+        if ($request->boolean('redirect_to_checkout')) {
+            return redirect()->route('checkout');
         }
 
         return back()->with('Giỏ hàng không hợp lệ!');

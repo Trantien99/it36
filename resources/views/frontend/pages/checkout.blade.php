@@ -155,7 +155,7 @@
                                                     @endif
                                                 </span>
                                             </li>
-                                            <li class="coupon_price" data-price="{{ $coupon['value'] }}">Bạn tiết kiệm được<span>{{number_format($coupon['value'],0)}}đ</span></li>
+                                            <li class="coupon_price" data-price="{{ $coupon['value'] }}" data-type="{{ $coupon['type'] ?? '' }}" data-configured-value="{{ $coupon['configured_value'] ?? 0 }}">Bạn tiết kiệm được<span>{{number_format($coupon['value'],0)}}đ</span></li>
                                             @endif
                                             @php
                                                 $total_amount=Helper::totalCartPrice();
@@ -355,13 +355,31 @@
 		}
 
 		$(document).ready(function(){
-			$('.shipping select[name=shipping]').change(function(){
-				let cost = parseFloat( $(this).find('option:selected').data('price') ) || 0;
-				let subtotal = parseFloat( $('.order_subtotal').data('price') );
+			function refreshCheckoutTotal() {
+				let subtotal = parseFloat( $('.order_subtotal').data('price') ) || 0;
+				let cost = parseFloat( $('.shipping select[name=shipping] option:selected').data('price') ) || 0;
 				let coupon = parseFloat( $('.coupon_price').data('price') ) || 0;
+				let couponType = $('.coupon_price').data('type') || '';
+				let configuredValue = parseFloat($('.coupon_price').data('configured-value')) || 0;
+
+				if (couponType === 'percent') {
+					coupon = subtotal * (configuredValue / 100);
+					$('.coupon_price').attr('data-price', coupon);
+					$('.coupon_price span').text(formatMoney(coupon));
+				} else if (couponType === 'fixed') {
+					coupon = Math.min(configuredValue, subtotal);
+					$('.coupon_price').attr('data-price', coupon);
+					$('.coupon_price span').text(formatMoney(coupon));
+				}
+
 				$('#order_total_price span').text(formatMoney(subtotal + cost - coupon));
+			}
+
+			$('.shipping select[name=shipping]').change(function(){
+				refreshCheckoutTotal();
 			});
 
+			refreshCheckoutTotal();
 		});
 
 	</script>

@@ -39,7 +39,7 @@
 							@php
 								$cartItems = Helper::getAllProductFromCart();
 							@endphp
-							<form action="{{route('cart.update')}}" method="POST">
+							<form id="cart-form" action="{{route('cart.update')}}" method="POST">
 								@csrf
 								@if($cartItems && $cartItems->isNotEmpty())
 									@foreach($cartItems as $key=>$cart)
@@ -82,9 +82,6 @@
 										<td></td>
 										<td></td>
 										<td></td>
-										<td class="float-right">
-											<button class="btn float-right" type="submit">Cập Nhật</button>
-										</td>
 									</tr>
 									@endforeach
 								@else
@@ -149,7 +146,7 @@
 												{{ number_format((float) ($coupon['configured_value'] ?? $coupon['value']), 0) }}đ
 											@endif
 										</span></li>
-										<li class="coupon_price" data-price="{{ $coupon['value'] }}">Bạn tiết kiệm được<span>{{number_format($coupon['value'],0)}}đ</span></li>
+										<li class="coupon_price" data-price="{{ $coupon['value'] }}" data-type="{{ $coupon['type'] ?? '' }}" data-configured-value="{{ $coupon['configured_value'] ?? 0 }}">Bạn tiết kiệm được<span>{{number_format($coupon['value'],0)}}đ</span></li>
 										@endif
 										@php
 											$total_amount=Helper::totalCartPrice();
@@ -160,7 +157,7 @@
 										<li class="last" id="order_total_price">Bạn cần thanh toán<span>{{number_format($total_amount,0)}}đ</span></li>
 									</ul>
 									<div class="button5">
-										<a href="{{route('checkout')}}" class="btn">Thanh Toán</a>
+										<button type="submit" form="cart-form" name="redirect_to_checkout" value="1" class="btn">Thanh Toán</button>
 										<a href="{{route('product-grids')}}" class="btn">Tiếp Tục Mua Sắm</a>
 									</div>
 								</div>
@@ -295,9 +292,26 @@
 			$('.order_subtotal').attr('data-price', subtotal);
 			$('.order_subtotal span').text(formatMoney(subtotal));
 
-			const coupon = parseFloat($('.coupon_price').data('price')) || 0;
-			const total = Math.max(subtotal - coupon, 0);
-			$('#order_total_price span').text(formatMoney(total));
+			const couponEl = $('.coupon_price');
+			if (couponEl.length) {
+				const couponType = couponEl.data('type') || '';
+				const configuredValue = parseFloat(couponEl.data('configured-value')) || 0;
+				let couponValue = parseFloat(couponEl.data('price')) || 0;
+
+				if (couponType === 'percent') {
+					couponValue = subtotal * (configuredValue / 100);
+				} else if (couponType === 'fixed') {
+					couponValue = Math.min(configuredValue, subtotal);
+				}
+
+				couponEl.attr('data-price', couponValue);
+				couponEl.find('span').text(formatMoney(couponValue));
+				const total = Math.max(subtotal - couponValue, 0);
+				$('#order_total_price span').text(formatMoney(total));
+				return;
+			}
+
+			$('#order_total_price span').text(formatMoney(subtotal));
 		}
 
 		$(document).ready(function(){

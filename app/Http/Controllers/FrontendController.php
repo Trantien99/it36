@@ -1436,10 +1436,9 @@ class FrontendController extends Controller
         $data=$request->all();
         // dd($data);
         $check=$this->create($data);
-        Session::put('user',$data['email']);
         if($check){
-            request()->session()->flash('success','Đăng ký thành công');
-            return redirect()->route('home');
+            request()->session()->flash('success','Đăng ký thành công. Vui lòng đăng nhập.');
+            return redirect()->route('login.form');
         }
         else{
             request()->session()->flash('error','Vui lòng thử lại!');

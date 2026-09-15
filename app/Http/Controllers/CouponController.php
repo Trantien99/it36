@@ -181,23 +181,23 @@ class CouponController extends Controller
 
     public function couponStore(Request $request){
         // return $request->all();
-        $coupon=Coupon::where('code',$request->code)->first();
-        // dd($coupon);
-        if(!$coupon){
-            request()->session()->flash('error','Mã giảm giá không hơp lệ, Vui lòng thử lại');
+        $coupon = Coupon::where('code', $request->code)->first();
+
+        if(!$coupon || $coupon->status !== 'active'){
+            session()->forget('coupon');
+            request()->session()->flash('error','Mã giảm giá không hợp lệ hoặc đã ngừng hoạt động');
             return back();
         }
-        if($coupon){
-            $total_price = \Helper::totalCartPrice();
-            session()->put('coupon',[
-                'id'=>$coupon->id,
-                'code'=>$coupon->code,
-                'type'=>$coupon->type,
-                'configured_value'=>$coupon->value,
-                'value'=>$coupon->discount($total_price)
-            ]);
-            request()->session()->flash('success','Mã giảm giá áp dụng thành công');
-            return redirect()->back();
-        }
+
+        $total_price = \Helper::totalCartPrice();
+        session()->put('coupon',[
+            'id'=>$coupon->id,
+            'code'=>$coupon->code,
+            'type'=>$coupon->type,
+            'configured_value'=>$coupon->value,
+            'value'=>$coupon->discount($total_price)
+        ]);
+        request()->session()->flash('success','Mã giảm giá áp dụng thành công');
+        return redirect()->back();
     }
 }
