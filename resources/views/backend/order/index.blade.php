@@ -895,13 +895,41 @@
               Đang chuẩn bị
               <span>{{ number_format((int) $statusSummary->get('preparing', 0), 0, ',', '.') }}</span>
             </button>
+            <button type="button" class="order-filter-chip" data-status="ready">
+              Đã sẵn sàng
+              <span>{{ number_format((int) $statusSummary->get('ready', 0), 0, ',', '.') }}</span>
+            </button>
             <button type="button" class="order-filter-chip" data-status="shipping">
               Đang giao hàng
               <span>{{ number_format((int) $statusSummary->get('shipping', 0), 0, ',', '.') }}</span>
             </button>
+            <button type="button" class="order-filter-chip" data-status="delivery_failed">
+              Giao hàng thất bại
+              <span>{{ number_format((int) $statusSummary->get('delivery_failed', 0), 0, ',', '.') }}</span>
+            </button>
+            <button type="button" class="order-filter-chip" data-status="returning">
+              Đang hoàn hàng
+              <span>{{ number_format((int) $statusSummary->get('returning', 0), 0, ',', '.') }}</span>
+            </button>
+            <button type="button" class="order-filter-chip" data-status="returned">
+              Hoàn hàng thành công
+              <span>{{ number_format((int) $statusSummary->get('returned', 0), 0, ',', '.') }}</span>
+            </button>
+            <button type="button" class="order-filter-chip" data-status="delivery_success">
+              Giao hàng thành công
+              <span>{{ number_format((int) $statusSummary->get('delivery_success', 0), 0, ',', '.') }}</span>
+            </button>
+            <button type="button" class="order-filter-chip" data-status="completed">
+              Hoàn thành
+              <span>{{ number_format((int) $statusSummary->get('completed', 0), 0, ',', '.') }}</span>
+            </button>
             <button type="button" class="order-filter-chip" data-status="cancelled">
               Đã hủy
               <span>{{ number_format((int) $statusSummary->get('cancelled', 0), 0, ',', '.') }}</span>
+            </button>
+            <button type="button" class="order-filter-chip" data-status="ended">
+              Kết thúc
+              <span>{{ number_format((int) $statusSummary->get('ended', 0), 0, ',', '.') }}</span>
             </button>
           </div>
 

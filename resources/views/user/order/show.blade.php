@@ -4,7 +4,7 @@
 
 @section('main-content')
 @php
-    $statusMeta = collect(\App\Models\Order::ORDER_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+    $statusMeta = collect(\App\Models\Order::ORDER_STATUS_LABELS)->except(['returning', 'returned'])->mapWithKeys(function ($label, $key) {
         return [$key => ['label' => $label, 'icon' => 'fas fa-circle', 'tone' => 'status-process', 'summary' => 'Trạng thái đơn hàng đang được cập nhật.']];
     })->all();
 
@@ -19,7 +19,8 @@
     })->all();
 
     $currentStatusKey = trim((string) $order->status);
-    $currentStatus = $statusMeta[$currentStatusKey] ?? ['label' => ucfirst($currentStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'status-muted', 'summary' => 'Đơn hàng đang được cập nhật trạng thái.'];
+    $flowStatusKey = in_array($currentStatusKey, ['returning', 'returned'], true) ? 'delivery_failed' : $currentStatusKey;
+    $currentStatus = $statusMeta[$flowStatusKey] ?? ['label' => ucfirst($flowStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'status-muted', 'summary' => 'Đơn hàng đang được cập nhật trạng thái.'];
 
     $paymentMethodKey = strtolower(trim((string) $order->payment_method));
     $paymentStatusKey = strtolower(trim((string) $order->payment_status));
@@ -60,7 +61,7 @@
         'completed' => ['label' => 'Hoàn thành', 'icon' => 'fas fa-check-double'],
     ];
 
-    $currentRank = $progressRank[$currentStatusKey] ?? 0;
+    $currentRank = $progressRank[$flowStatusKey] ?? 0;
 @endphp
 
 <div class="container-fluid user-order-page">
@@ -152,7 +153,7 @@
             <div class="tracking-grid">
                 @foreach ($trackingStages as $key => $stage)
                     @php
-                        if ($currentStatusKey === 'cancelled') {
+                        if ($flowStatusKey === 'cancelled') {
                             $stageState = 'is-muted';
                         } else {
                             $stageRank = $progressRank[$key] ?? 0;
@@ -168,22 +169,22 @@
                 @endforeach
             </div>
 
-            @if ($currentStatusKey === 'cancelled')
+            @if ($flowStatusKey === 'cancelled')
                 <div class="tracking-alert tracking-alert-danger">
                     <i class="fas fa-info-circle mr-2"></i>
                     Đơn hàng này đã bị hủy. Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ shop để được kiểm tra lại thông tin đơn.
                 </div>
-            @elseif (in_array($currentStatusKey, ['delivery_success', 'completed'], true))
+            @elseif (in_array($flowStatusKey, ['delivery_success', 'completed'], true))
                 <div class="tracking-alert tracking-alert-success">
                     <i class="fas fa-heart mr-2"></i>
                     Đơn hàng đã giao thành công. Bạn có thể lưu PDF hóa đơn hoặc tiếp tục mua sắm thêm.
                 </div>
-            @elseif ($currentStatusKey === 'delivery_failed')
+            @elseif ($flowStatusKey === 'delivery_failed')
                 <div class="tracking-alert tracking-alert-danger">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     Đơn hàng đang ở luồng giao không thành công hoặc hoàn hàng. Shop sẽ tiếp tục cập nhật trạng thái xử lý cho bạn.
                 </div>
-            @elseif (in_array($currentStatusKey, ['pending_confirmation', 'preparing', 'ready', 'shipping'], true))
+            @elseif (in_array($flowStatusKey, ['pending_confirmation', 'preparing', 'ready', 'shipping'], true))
                 <div class="tracking-alert tracking-alert-info">
                     <i class="fas fa-clock mr-2"></i>
                     Đơn hàng vẫn đang được xử lý. Shop sẽ cập nhật tiếp khi trạng thái thay đổi.
