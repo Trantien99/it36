@@ -97,6 +97,7 @@ class OrderController extends Controller
             'last_name'=>'string|required',
             'address1'=>'string|required',
             'address2'=>'string|nullable',
+            'country'=>'string|nullable',
             'coupon'=>'nullable|numeric',
             'phone'=>'numeric|required',
             'post_code'=>'string|nullable',
@@ -191,6 +192,17 @@ class OrderController extends Controller
             request()->session()->flash('error','Could not create order. Please try again.');
             return back();
         }
+
+        $request->user()->update([
+            'checkout_first_name' => $request->first_name,
+            'checkout_last_name' => $request->last_name,
+            'checkout_phone' => $request->phone,
+            'checkout_country' => $request->country,
+            'checkout_address1' => $request->address1,
+            'checkout_address2' => $request->address2,
+            'checkout_post_code' => $request->post_code,
+        ]);
+
         $users=User::where('role','admin')->first();
         $details=[
             'title'=>'Có đơn hàng mới',

@@ -37,7 +37,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Tên<span>*</span></label>
-                                            <input type="text" name="first_name" placeholder="" value="{{old('first_name')}}" value="{{old('first_name')}}">
+                                            <input type="text" name="first_name" placeholder="" value="{{old('first_name', $checkoutUser->checkout_first_name ?: $checkoutUser->name)}}" required>
                                             @error('first_name')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -46,7 +46,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Họ<span>*</span></label>
-                                            <input type="text" name="last_name" placeholder="" value="{{old('lat_name')}}">
+                                            <input type="text" name="last_name" placeholder="" value="{{old('last_name', $checkoutUser->checkout_last_name ?: $checkoutUser->name)}}" required>
                                             @error('last_name')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -55,7 +55,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Địa chỉ Email<span>*</span></label>
-                                            <input type="email" name="email" placeholder="" value="{{old('email')}}">
+                                            <input type="email" name="email" placeholder="" value="{{old('email', $checkoutUser->email)}}" required>
                                             @error('email')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -64,7 +64,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Số điện thoại <span>*</span></label>
-                                            <input type="number" name="phone" placeholder="" required value="{{old('phone')}}">
+                                            <input type="number" name="phone" placeholder="" required value="{{old('phone', $checkoutUser->checkout_phone)}}">
                                             @error('phone')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -75,8 +75,8 @@
                                             <label>Quốc Gia<span>*</span></label>
                                             <select name="country" id="country">
 
-                                                <option value="VN">Vietnam</option>
-                                                <option value="WF">America</option>
+                                                <option value="VN" {{old('country', $checkoutUser->checkout_country ?: 'VN') == 'VN' ? 'selected' : ''}}>Vietnam</option>
+                                                <option value="WF" {{old('country', $checkoutUser->checkout_country) == 'WF' ? 'selected' : ''}}>America</option>
 
                                             </select>
                                         </div>
@@ -84,7 +84,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Địa chỉ 1<span>*</span></label>
-                                            <input type="text" name="address1" placeholder="" value="{{old('address1')}}">
+                                            <input type="text" name="address1" placeholder="" value="{{old('address1', $checkoutUser->checkout_address1)}}" required>
                                             @error('address1')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -93,7 +93,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Địa chỉ 2</label>
-                                            <input type="text" name="address2" placeholder="" value="{{old('address2')}}">
+                                            <input type="text" name="address2" placeholder="" value="{{old('address2', $checkoutUser->checkout_address2)}}">
                                             @error('address2')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
@@ -102,7 +102,7 @@
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="form-group">
                                             <label>Mã bưu chính</label>
-                                            <input type="text" name="post_code" placeholder="" value="{{old('post_code')}}">
+                                            <input type="text" name="post_code" placeholder="" value="{{old('post_code', $checkoutUser->checkout_post_code)}}">
                                             @error('post_code')
                                                 <span class='text-danger'>{{$message}}</span>
                                             @enderror
