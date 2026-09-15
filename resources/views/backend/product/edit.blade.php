@@ -130,7 +130,7 @@
                   </label>
               </span>
               <span class="input-group-btn ml-2">
-                  <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary text-white">
+                  <a id="lfm" data-input="thumbnail" data-preview="holder" data-prefix="{{ url('laravel-filemanager') }}" class="btn btn-primary text-white">
                       <i class="fas fa-image"></i> Chọn từ thư viện
                   </a>
               </span>
@@ -175,7 +175,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
-    $('#lfm').filemanager('image');
+    $('#lfm').filemanager('image', {prefix: $('#lfm').data('prefix')});
 
     $('#photo_file').on('change', function () {
       var file = this.files && this.files[0];
