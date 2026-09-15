@@ -36,13 +36,7 @@
 
                     @if(isset($searched) && !empty($order))
                         @php
-                            $statusLabelMap = [
-                                'new' => 'Mới tạo',
-                                'process' => 'Đang xử lý',
-                                'delivered' => 'Đã giao',
-                                'cancel' => 'Đã hủy',
-                            ];
-                            $statusLabel = $statusLabelMap[$order->status] ?? ucfirst($order->status);
+                            $statusLabel = \App\Models\Order::ORDER_STATUS_LABELS[$order->status] ?? ucfirst($order->status);
                         @endphp
                         <div class="alert alert-info my-4">
                             <strong>Mã đơn hàng:</strong> {{ $order->order_number }}

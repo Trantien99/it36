@@ -93,7 +93,7 @@ class TechnicalSalesController extends Controller
             ->values();
 
         $deliveredOrders = Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate]);
         $deliveredRevenue = (float) (clone $deliveredOrders)->sum('total_amount');
 
@@ -134,7 +134,7 @@ class TechnicalSalesController extends Controller
         $productTalkTracks = Cart::query()
             ->join('orders', 'orders.id', '=', 'carts.order_id')
             ->join('products', 'products.id', '=', 'carts.product_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->select('products.id', 'products.title', 'products.condition', 'products.price', 'products.stock')
             ->selectRaw('SUM(carts.quantity) as units_sold')
@@ -377,7 +377,7 @@ class TechnicalSalesController extends Controller
         $orderItems = Cart::query()
             ->join('orders', 'orders.id', '=', 'carts.order_id')
             ->join('products', 'products.id', '=', 'carts.product_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->select('orders.id as order_id', 'products.title')
             ->selectRaw('SUM(carts.amount) as line_revenue')

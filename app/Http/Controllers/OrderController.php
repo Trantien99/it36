@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\OrderStatusHistory;
 use App\Models\Settings;
 use App\Models\Shipping;
 use App\User;
@@ -39,11 +40,11 @@ class OrderController extends Controller
             ->pluck('total', 'payment_method');
 
         $totalOrders = (int) $statusSummary->sum();
-        $pendingOrders = (int) $statusSummary->get('new', 0) + (int) $statusSummary->get('process', 0);
-        $deliveredOrders = (int) $statusSummary->get('delivered', 0);
-        $cancelledOrders = (int) $statusSummary->get('cancel', 0);
+        $pendingOrders = (int) Order::whereIn('status', ['pending_confirmation', 'preparing', 'ready', 'shipping', 'delivery_failed', 'returning'])->count();
+        $deliveredOrders = (int) Order::whereIn('status', ['delivery_success', 'completed'])->count();
+        $cancelledOrders = (int) Order::whereIn('status', ['cancelled', 'returned', 'ended'])->count();
         $deliveredRevenue = (float) Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->sum('total_amount');
         $averageOrderValue = $totalOrders > 0
             ? (float) Order::query()->avg('total_amount')
@@ -128,7 +129,7 @@ class OrderController extends Controller
         //         'product_id'=>$cart_item['id'],
         //         'quantity'=>$cart_item['quantity'],
         //         'amount'=>$cart_item['amount'],
-        //         'status'=>'new',
+        //         'status'=>'pending_confirmation',
         //         'price'=>$cart_item['price'],
         //     );
 
@@ -173,14 +174,14 @@ class OrderController extends Controller
             }
         }
         // return $order_data['total_amount'];
-        $order_data['status']="new";
+        $order_data['status'] = 'pending_confirmation';
         if(request('payment_method')=='paypal'){
             $order_data['payment_method']='paypal';
-            $order_data['payment_status']='paid';
+            $order_data['payment_status']='pending';
         }
         elseif(request('payment_method')=='momo'){
             $order_data['payment_method']='momo';
-            $order_data['payment_status']='unpaid';
+            $order_data['payment_status']='pending';
         }
         else{
             $order_data['payment_method']='cod';
@@ -192,6 +193,13 @@ class OrderController extends Controller
             request()->session()->flash('error','Could not create order. Please try again.');
             return back();
         }
+
+        OrderStatusHistory::create([
+            'order_id' => $order->id,
+            'status' => $order->status,
+            'payment_status' => $order->payment_status,
+            'changed_by' => auth()->id(),
+        ]);
 
         $request->user()->update([
             'checkout_first_name' => $request->first_name,
@@ -267,7 +275,7 @@ class OrderController extends Controller
      */
     public function edit($id)
     {
-        $order = Order::with(['shipping', 'cart.product'])->findOrFail($id);
+        $order = Order::with(['shipping', 'cart.product', 'statusHistory'])->findOrFail($id);
         return view('backend.order.edit')->with('order', $order);
     }
 
@@ -281,19 +289,31 @@ class OrderController extends Controller
     public function update(Request $request, $id)
     {
         $order = Order::with('cart.product')->findOrFail($id);
+        $allowedStatuses = array_keys(Order::ORDER_STATUS_LABELS);
         $this->validate($request,[
-            'status'=>'required|in:new,process,delivered,cancel'
+            'status'=>'required|in:'.implode(',', $allowedStatuses),
+            'payment_status'=>'nullable|in:'.implode(',', array_keys(Order::PAYMENT_STATUS_LABELS)),
         ]);
-        $data = $request->only('status');
+        $data = $request->only(['status', 'payment_status']);
         $previousStatus = trim((string) $order->status);
         $nextStatus = trim((string) $request->status);
 
-        if($nextStatus == 'delivered'){
-            $data['payment_status'] = 'paid';
+        if (!in_array($nextStatus, Order::ORDER_STATUS_TRANSITIONS[$previousStatus] ?? [$previousStatus], true)) {
+            request()->session()->flash('error', 'Trạng thái mới không hợp lệ với tiến trình hiện tại.');
+            return redirect()->back()->withInput();
+        }
+
+        if ($nextStatus === 'completed' && $order->payment_status !== 'paid' && $request->input('payment_status') !== 'paid') {
+            request()->session()->flash('error', 'Chỉ có thể hoàn thành đơn sau khi đã thanh toán hoặc đối soát.');
+            return redirect()->back()->withInput();
+        }
+
+        if (in_array($nextStatus, ['cancelled', 'returned'], true) && $order->payment_status === 'paid') {
+            $data['payment_status'] = 'refunded';
         }
 
         $status = DB::transaction(function () use ($order, $data, $previousStatus, $nextStatus) {
-            if($nextStatus == 'delivered' && $previousStatus !== 'delivered'){
+            if(in_array($nextStatus, Order::STOCK_DECREMENT_STATUSES, true) && !in_array($previousStatus, Order::STOCK_DECREMENT_STATUSES, true)){
                 foreach($order->cart as $cart){
                     $product = $cart->product;
                     if (!$product) {
@@ -305,7 +325,18 @@ class OrderController extends Controller
                 }
             }
 
-            return $order->fill($data)->save();
+            $saved = $order->fill($data)->save();
+
+            if ($saved && $previousStatus !== $nextStatus) {
+                OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'status' => $nextStatus,
+                    'payment_status' => $order->payment_status,
+                    'changed_by' => auth()->id(),
+                ]);
+            }
+
+            return $saved;
         });
         if($status){
             request()->session()->flash('success','Cập nhật đơn hàng thành công');
@@ -363,10 +394,17 @@ class OrderController extends Controller
         }
 
         $statusMap = [
-            'new' => 'Đơn hàng của bạn đã được đặt. Vui lòng chờ.',
-            'process' => 'Đơn hàng của bạn đang được xử lý. Vui lòng chờ.',
-            'delivered' => 'Đơn hàng của bạn đã được giao. Xin chân thành cảm ơn.',
-            'cancel' => 'Đơn hàng của bạn đã bị hủy, vui lòng thử lại.',
+            'pending_confirmation' => 'Đơn hàng đang chờ shop xác nhận.',
+            'preparing' => 'Shop đang chuẩn bị hàng cho bạn.',
+            'ready' => 'Đơn hàng đã sẵn sàng để bàn giao vận chuyển.',
+            'shipping' => 'Đơn hàng đang được giao đến bạn.',
+            'delivery_failed' => 'Giao hàng chưa thành công, đơn đang được xử lý tiếp.',
+            'returning' => 'Đơn hàng đang được hoàn về shop.',
+            'returned' => 'Shop đã nhận lại hàng hoàn.',
+            'delivery_success' => 'Đơn hàng đã giao thành công.',
+            'completed' => 'Đơn hàng đã hoàn thành.',
+            'cancelled' => 'Đơn hàng đã bị hủy.',
+            'ended' => 'Đơn hàng đã kết thúc.',
         ];
 
         $statusText = $statusMap[$order->status] ?? 'Đơn hàng đang được cập nhật trạng thái.';
@@ -433,7 +471,7 @@ class OrderController extends Controller
     protected function incomeOrdersQuery()
     {
         $query = Order::with(['cart_info'])
-            ->where('status', 'delivered');
+            ->whereIn('status', ['delivery_success', 'completed']);
 
         if (auth()->user()->role !== 'admin') {
             $query->where('user_id', auth()->id());

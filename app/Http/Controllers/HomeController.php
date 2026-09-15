@@ -65,7 +65,7 @@ class HomeController extends Controller
     {
         $order = Order::where('user_id', auth()->user()->id)->findOrFail($id);
         if($order){
-           if($order->status=="process" || $order->status=='delivered' || $order->status=='cancel'){
+           if($order->status !== 'pending_confirmation'){
                 return redirect()->back()->with('error','Bạn không thể xóa đơn hàng này bây giờ');
            }
            else{

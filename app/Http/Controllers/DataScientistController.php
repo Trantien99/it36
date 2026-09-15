@@ -16,7 +16,7 @@ class DataScientistController extends Controller
         $startDate = Carbon::now()->subDays($range - 1)->startOfDay();
 
         $dailyRows = Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->selectRaw("DATE(created_at) as bucket")
             ->selectRaw('COUNT(*) as order_count')
@@ -83,7 +83,7 @@ class DataScientistController extends Controller
         $anomalyRows = array_slice($anomalyRows, 0, 8);
 
         $customerRows = Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereNotNull('user_id')
             ->select('user_id')
             ->selectRaw('COUNT(*) as order_count')
@@ -136,7 +136,7 @@ class DataScientistController extends Controller
         $momentumRows = Cart::query()
             ->join('orders', 'orders.id', '=', 'carts.order_id')
             ->join('products', 'products.id', '=', 'carts.product_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$previousStartDate, $endDate])
             ->select('products.id', 'products.slug', 'products.title', 'products.stock')
             ->selectRaw("

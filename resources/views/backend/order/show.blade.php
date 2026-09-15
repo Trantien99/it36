@@ -22,12 +22,9 @@
     $customerName = trim($order->first_name . ' ' . $order->last_name);
     $customerAddress = collect([$order->address1, $order->address2])->filter()->implode(', ');
 
-    $statusMap = [
-        'new' => ['label' => 'Mới tạo', 'class' => 'status-new'],
-        'process' => ['label' => 'Đang xử lý', 'class' => 'status-process'],
-        'delivered' => ['label' => 'Đã giao', 'class' => 'status-delivered'],
-        'cancel' => ['label' => 'Đã hủy', 'class' => 'status-cancel'],
-    ];
+    $statusMap = collect(\App\Models\Order::ORDER_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+        return [$key => ['label' => $label, 'class' => in_array($key, ['cancelled', 'delivery_failed'], true) ? 'status-cancel' : (in_array($key, ['delivery_success', 'completed'], true) ? 'status-delivered' : 'status-process')]];
+    })->all();
 
     $paymentMethodMap = [
         'cod' => 'Thanh toán khi nhận hàng',
@@ -35,10 +32,9 @@
         'momo' => 'MoMo',
     ];
 
-    $paymentStatusMap = [
-        'paid' => ['label' => 'Đã thanh toán', 'class' => 'status-delivered'],
-        'unpaid' => ['label' => 'Chưa thanh toán', 'class' => 'status-cancel'],
-    ];
+    $paymentStatusMap = collect(\App\Models\Order::PAYMENT_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+        return [$key => ['label' => $label, 'class' => $key === 'paid' ? 'status-delivered' : 'status-cancel']];
+    })->all();
 
     $currentStatus = $statusMap[$order->status] ?? ['label' => ucfirst($order->status), 'class' => 'status-process'];
     $currentPaymentStatus = $paymentStatusMap[strtolower($order->payment_status)] ?? ['label' => ucfirst($order->payment_status), 'class' => 'status-process'];

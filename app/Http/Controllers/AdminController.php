@@ -47,20 +47,20 @@ class AdminController extends Controller
             ->pluck('total', 'status');
 
         $totalOrders = (int) $statusCounts->sum();
-        $deliveredOrders = (int) $statusCounts->get('delivered', 0);
-        $newOrders = (int) $statusCounts->get('new', 0);
-        $processingOrders = (int) $statusCounts->get('process', 0);
-        $cancelledOrders = (int) $statusCounts->get('cancel', 0);
-        $previousDeliveredOrders = (int) $previousStatusCounts->get('delivered', 0);
+        $deliveredOrders = (int) $statusCounts->get('delivery_success', 0) + (int) $statusCounts->get('completed', 0);
+        $newOrders = (int) $statusCounts->get('pending_confirmation', 0);
+        $processingOrders = (int) $statusCounts->get('preparing', 0) + (int) $statusCounts->get('ready', 0) + (int) $statusCounts->get('shipping', 0);
+        $cancelledOrders = (int) $statusCounts->get('cancelled', 0);
+        $previousDeliveredOrders = (int) $previousStatusCounts->get('delivery_success', 0) + (int) $previousStatusCounts->get('completed', 0);
         $previousTotalOrders = (int) $previousStatusCounts->sum();
 
         $revenue = (float) Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
 
         $previousRevenue = (float) Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$previousStartDate, $previousEndDate])
             ->sum('total_amount');
 
@@ -99,7 +99,7 @@ class AdminController extends Controller
             ->select('products.title')
             ->selectRaw('SUM(carts.quantity) as units_sold')
             ->selectRaw('SUM(carts.amount) as revenue')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->groupBy('products.id', 'products.title')
             ->orderByDesc(DB::raw('SUM(carts.quantity)'))
@@ -112,7 +112,7 @@ class AdminController extends Controller
             ->join('categories', 'categories.id', '=', 'products.cat_id')
             ->select('categories.title')
             ->selectRaw('SUM(carts.amount) as revenue')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->groupBy('categories.id', 'categories.title')
             ->orderByDesc(DB::raw('SUM(carts.amount)'))
@@ -209,7 +209,7 @@ class AdminController extends Controller
             ],
             [
                 'label' => 'Đơn đang xử lý',
-                'value' => Order::query()->whereIn('status', ['new', 'process'])->count(),
+                'value' => Order::query()->whereIn('status', ['pending_confirmation', 'preparing', 'ready', 'shipping'])->count(),
                 'icon' => 'fa-hourglass-half',
             ],
             [
@@ -375,7 +375,7 @@ class AdminController extends Controller
         $rows = Order::query()
             ->selectRaw($bucketExpression.' as bucket')
             ->selectRaw('COUNT(*) as orders')
-            ->selectRaw("SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END) as revenue")
+            ->selectRaw("SUM(CASE WHEN status IN ('delivery_success', 'completed') THEN total_amount ELSE 0 END) as revenue")
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('bucket')
             ->orderBy('bucket')
@@ -510,7 +510,7 @@ class AdminController extends Controller
         $orderRows = Order::query()
             ->selectRaw($bucketExpression.' as bucket')
             ->selectRaw('COUNT(*) as orders')
-            ->selectRaw("SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END) as revenue")
+            ->selectRaw("SUM(CASE WHEN status IN ('delivery_success', 'completed') THEN total_amount ELSE 0 END) as revenue")
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('bucket')
             ->orderBy('bucket')
@@ -597,7 +597,7 @@ class AdminController extends Controller
         $rows = Order::query()
             ->selectRaw('DAYOFWEEK(created_at) as weekday')
             ->selectRaw('COUNT(*) as orders')
-            ->selectRaw("SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END) as revenue")
+            ->selectRaw("SUM(CASE WHEN status IN ('delivery_success', 'completed') THEN total_amount ELSE 0 END) as revenue")
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('weekday')
             ->get()
@@ -790,7 +790,7 @@ class AdminController extends Controller
             ->join('products', 'products.id', '=', 'carts.product_id')
             ->select('products.id', 'products.title', 'products.stock', 'products.price')
             ->selectRaw('SUM(carts.quantity) as units_sold')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$inventoryStartDate, $endDate])
             ->groupBy('products.id', 'products.title', 'products.stock', 'products.price')
             ->havingRaw('SUM(carts.quantity) > 0')

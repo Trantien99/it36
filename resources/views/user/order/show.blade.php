@@ -4,12 +4,9 @@
 
 @section('main-content')
 @php
-    $statusMeta = [
-        'new' => ['label' => 'Mới đặt', 'icon' => 'fas fa-receipt', 'tone' => 'status-new', 'summary' => 'Shop đã ghi nhận đơn của bạn và đang chờ xử lý.'],
-        'process' => ['label' => 'Đang xử lý', 'icon' => 'fas fa-box-open', 'tone' => 'status-process', 'summary' => 'Đơn hàng đang được xác nhận, đóng gói hoặc chuẩn bị giao.'],
-        'delivered' => ['label' => 'Đã giao', 'icon' => 'fas fa-check-circle', 'tone' => 'status-delivered', 'summary' => 'Đơn hàng đã giao thành công. Cảm ơn bạn đã mua sắm.'],
-        'cancel' => ['label' => 'Đã hủy', 'icon' => 'fas fa-times-circle', 'tone' => 'status-cancel', 'summary' => 'Đơn hàng đã bị hủy và không tiếp tục xử lý.'],
-    ];
+    $statusMeta = collect(\App\Models\Order::ORDER_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+        return [$key => ['label' => $label, 'icon' => 'fas fa-circle', 'tone' => 'status-process', 'summary' => 'Trạng thái đơn hàng đang được cập nhật.']];
+    })->all();
 
     $paymentMethodMap = [
         'cod' => ['label' => 'Thanh toán khi nhận hàng', 'short' => 'COD', 'icon' => 'fas fa-money-bill-wave', 'class' => 'payment-method-cod'],
@@ -17,10 +14,9 @@
         'momo' => ['label' => 'Thanh toán qua MoMo', 'short' => 'MoMo', 'icon' => 'fas fa-mobile-alt', 'class' => 'payment-method-momo'],
     ];
 
-    $paymentStatusMap = [
-        'paid' => ['label' => 'Đã thanh toán', 'class' => 'payment-state-paid'],
-        'unpaid' => ['label' => 'Chưa thanh toán', 'class' => 'payment-state-unpaid'],
-    ];
+    $paymentStatusMap = collect(\App\Models\Order::PAYMENT_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+        return [$key => ['label' => $label, 'class' => 'payment-state-review']];
+    })->all();
 
     $currentStatusKey = trim((string) $order->status);
     $currentStatus = $statusMeta[$currentStatusKey] ?? ['label' => ucfirst($currentStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'status-muted', 'summary' => 'Đơn hàng đang được cập nhật trạng thái.'];
@@ -41,17 +37,27 @@
     };
 
     $progressRank = [
-        'new' => 1,
-        'process' => 2,
-        'delivered' => 3,
-        'cancel' => 0,
+        'pending_confirmation' => 1,
+        'preparing' => 2,
+        'ready' => 3,
+        'shipping' => 4,
+        'delivery_failed' => 5,
+        'returning' => 6,
+        'returned' => 7,
+        'delivery_success' => 8,
+        'completed' => 9,
+        'ended' => 10,
+        'cancelled' => 0,
     ];
 
     $trackingStages = [
-        'new' => ['label' => 'Đơn đã tạo', 'icon' => 'fas fa-receipt'],
-        'process' => ['label' => 'Shop xử lý', 'icon' => 'fas fa-cogs'],
-        'delivered' => ['label' => 'Hoàn tất giao hàng', 'icon' => 'fas fa-check-double'],
-        'cancel' => ['label' => 'Đơn bị hủy', 'icon' => 'fas fa-ban'],
+        'pending_confirmation' => ['label' => 'Chờ xác nhận', 'icon' => 'fas fa-receipt'],
+        'preparing' => ['label' => 'Đang chuẩn bị hàng', 'icon' => 'fas fa-cogs'],
+        'ready' => ['label' => 'Đơn hàng đã sẵn sàng', 'icon' => 'fas fa-box'],
+        'shipping' => ['label' => 'Đang giao hàng', 'icon' => 'fas fa-truck'],
+        'delivery_failed' => ['label' => 'Giao hàng thất bại', 'icon' => 'fas fa-exclamation-triangle'],
+        'delivery_success' => ['label' => 'Giao hàng thành công', 'icon' => 'fas fa-check-circle'],
+        'completed' => ['label' => 'Hoàn thành', 'icon' => 'fas fa-check-double'],
     ];
 
     $currentRank = $progressRank[$currentStatusKey] ?? 0;
@@ -146,14 +152,11 @@
             <div class="tracking-grid">
                 @foreach ($trackingStages as $key => $stage)
                     @php
-                        if ($currentStatusKey === 'cancel') {
-                            $stageState = $key === 'cancel' ? 'is-current' : 'is-muted';
+                        if ($currentStatusKey === 'cancelled') {
+                            $stageState = 'is-muted';
                         } else {
                             $stageRank = $progressRank[$key] ?? 0;
                             $stageState = $stageRank < $currentRank ? 'is-done' : ($stageRank === $currentRank ? 'is-current' : 'is-muted');
-                            if ($key === 'cancel') {
-                                $stageState = 'is-muted';
-                            }
                         }
                     @endphp
                     <div class="tracking-step {{ $stageState }}">
@@ -165,17 +168,22 @@
                 @endforeach
             </div>
 
-            @if ($currentStatusKey === 'cancel')
+            @if ($currentStatusKey === 'cancelled')
                 <div class="tracking-alert tracking-alert-danger">
                     <i class="fas fa-info-circle mr-2"></i>
                     Đơn hàng này đã bị hủy. Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ shop để được kiểm tra lại thông tin đơn.
                 </div>
-            @elseif ($currentStatusKey === 'delivered')
+            @elseif (in_array($currentStatusKey, ['delivery_success', 'completed'], true))
                 <div class="tracking-alert tracking-alert-success">
                     <i class="fas fa-heart mr-2"></i>
                     Đơn hàng đã giao thành công. Bạn có thể lưu PDF hóa đơn hoặc tiếp tục mua sắm thêm.
                 </div>
-            @else
+            @elseif ($currentStatusKey === 'delivery_failed')
+                <div class="tracking-alert tracking-alert-danger">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Đơn hàng đang ở luồng giao không thành công hoặc hoàn hàng. Shop sẽ tiếp tục cập nhật trạng thái xử lý cho bạn.
+                </div>
+            @elseif (in_array($currentStatusKey, ['pending_confirmation', 'preparing', 'ready', 'shipping'], true))
                 <div class="tracking-alert tracking-alert-info">
                     <i class="fas fa-clock mr-2"></i>
                     Đơn hàng vẫn đang được xử lý. Shop sẽ cập nhật tiếp khi trạng thái thay đổi.

@@ -26,6 +26,11 @@ class MomoController extends Controller
             return redirect()->route('user.order.show', $order->id);
         }
 
+        if (in_array((string) $order->status, ['cancelled', 'returned', 'ended'], true)) {
+            request()->session()->flash('error', 'Đơn hàng đã kết thúc hoặc bị hủy, không thể thanh toán lại.');
+            return redirect()->route('user.order.show', $order->id);
+        }
+
         $momoConfig = $this->getMomoConfig();
         if ($this->hasMissingConfig($momoConfig)) {
             request()->session()->flash('error', 'Thiếu cấu hình MoMo test. Vui lòng cập nhật MOMO_PARTNER_CODE, MOMO_ACCESS_KEY và MOMO_SECRET_KEY trong file .env.');

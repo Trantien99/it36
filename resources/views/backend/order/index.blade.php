@@ -679,12 +679,9 @@
 
 @section('main-content')
   @php
-    $statusMeta = [
-      'new' => ['label' => 'Mới tạo', 'class' => 'status-new', 'icon' => 'fas fa-bell'],
-      'process' => ['label' => 'Đang xử lý', 'class' => 'status-process', 'icon' => 'fas fa-sync-alt'],
-      'delivered' => ['label' => 'Đã giao', 'class' => 'status-delivered', 'icon' => 'fas fa-check-circle'],
-      'cancel' => ['label' => 'Đã hủy', 'class' => 'status-cancel', 'icon' => 'fas fa-times-circle'],
-    ];
+    $statusMeta = collect(\App\Models\Order::ORDER_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+      return [$key => ['label' => $label, 'class' => in_array($key, ['cancelled', 'delivery_failed'], true) ? 'status-cancel' : (in_array($key, ['delivery_success', 'completed'], true) ? 'status-delivered' : 'status-process'), 'icon' => 'fas fa-circle']];
+    })->all();
 
     $paymentMethodMeta = [
       'cod' => ['label' => 'COD', 'class' => 'payment-method-cod', 'icon' => 'fas fa-money-bill-wave'],
@@ -692,10 +689,9 @@
       'momo' => ['label' => 'MoMo', 'class' => 'payment-method-momo', 'icon' => 'fas fa-mobile-alt'],
     ];
 
-    $paymentStateMeta = [
-      'paid' => ['label' => 'Đã thanh toán', 'class' => 'payment-state-paid'],
-      'unpaid' => ['label' => 'Chưa thanh toán', 'class' => 'payment-state-unpaid'],
-    ];
+    $paymentStateMeta = collect(\App\Models\Order::PAYMENT_STATUS_LABELS)->mapWithKeys(function ($label, $key) {
+      return [$key => ['label' => $label, 'class' => $key === 'paid' ? 'payment-state-paid' : ($key === 'unpaid' ? 'payment-state-unpaid' : 'payment-state-review')]];
+    })->all();
 
     $fallbackStatus = ['label' => 'Chưa xác định', 'class' => 'status-muted', 'icon' => 'fas fa-question-circle'];
     $fallbackMethod = ['label' => 'Khác', 'class' => 'payment-method-muted', 'icon' => 'fas fa-wallet'];
@@ -822,7 +818,7 @@
               </div>
             </div>
             <div class="order-summary-text">Gồm các đơn mới tạo và đơn đang xử lý, phù hợp để đội admin ưu tiên xử lý ngay.</div>
-            <span class="order-chip">{{ number_format((int) $statusSummary->get('new', 0), 0, ',', '.') }} mới • {{ number_format((int) $statusSummary->get('process', 0), 0, ',', '.') }} đang xử lý</span>
+            <span class="order-chip">{{ number_format((int) $statusSummary->get('pending_confirmation', 0), 0, ',', '.') }} chờ xác nhận • {{ number_format((int) $statusSummary->get('preparing', 0), 0, ',', '.') }} đang chuẩn bị</span>
           </div>
         </div>
       </div>
@@ -891,21 +887,21 @@
               Tất cả
               <span>{{ number_format($totalOrders, 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="new">
-              Mới
-              <span>{{ number_format((int) $statusSummary->get('new', 0), 0, ',', '.') }}</span>
+            <button type="button" class="order-filter-chip" data-status="pending_confirmation">
+              Chờ xác nhận
+              <span>{{ number_format((int) $statusSummary->get('pending_confirmation', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="process">
-              Đang xử lý
-              <span>{{ number_format((int) $statusSummary->get('process', 0), 0, ',', '.') }}</span>
+            <button type="button" class="order-filter-chip" data-status="preparing">
+              Đang chuẩn bị
+              <span>{{ number_format((int) $statusSummary->get('preparing', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="delivered">
-              Đã giao
-              <span>{{ number_format((int) $statusSummary->get('delivered', 0), 0, ',', '.') }}</span>
+            <button type="button" class="order-filter-chip" data-status="shipping">
+              Đang giao hàng
+              <span>{{ number_format((int) $statusSummary->get('shipping', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip" data-status="cancel">
+            <button type="button" class="order-filter-chip" data-status="cancelled">
               Đã hủy
-              <span>{{ number_format((int) $statusSummary->get('cancel', 0), 0, ',', '.') }}</span>
+              <span>{{ number_format((int) $statusSummary->get('cancelled', 0), 0, ',', '.') }}</span>
             </button>
           </div>
 

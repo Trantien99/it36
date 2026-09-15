@@ -49,18 +49,20 @@
                     <td>{{$order->first_name}} {{$order->last_name}}</td>
                     <td>{{$order->email}}</td>
                     <td>{{$order->quantity}}</td>
-                    <td>{{$order->shipping->price}}đ</td>
+                    <td>
+                      @if ($order->shipping)
+                        {{ number_format((float) $order->shipping->price, 0, ',', '.') }}đ
+                      @else
+                        Chưa chọn
+                      @endif
+                    </td>
                     <td>{{number_format($order->total_amount,0)}}đ</td>
                     <td>
-                        @if($order->status=='new')
-                          <span class="badge badge-primary">{{$order->status}}</span>
-                        @elseif($order->status=='process')
-                          <span class="badge badge-warning">{{$order->status}}</span>
-                        @elseif($order->status=='delivered')
-                          <span class="badge badge-success">{{$order->status}}</span>
-                        @else
-                          <span class="badge badge-danger">{{$order->status}}</span>
-                        @endif
+                        @php
+                          $statusLabel = \App\Models\Order::ORDER_STATUS_LABELS[$order->status] ?? ucfirst($order->status);
+                          $statusClass = in_array($order->status, ['delivery_success', 'completed'], true) ? 'badge-success' : (in_array($order->status, ['cancelled', 'delivery_failed'], true) ? 'badge-danger' : 'badge-primary');
+                        @endphp
+                        <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     </td>
                     <td>
                         <a href="{{route('user.order.show',$order->id)}}" class="btn btn-warning btn-sm float-left mr-1" style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" title="view" data-placement="bottom"><i class="fas fa-eye"></i></a>

@@ -161,7 +161,7 @@ class Helper{
 
     // Admin home
     public static function earningPerMonth(){
-        $month_data=Order::where('status','delivered')->get();
+        $month_data=Order::whereIn('status', ['delivered', 'delivery_success', 'completed'])->get();
         // return $month_data;
         $price=0;
         foreach($month_data as $data){

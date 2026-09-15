@@ -20,7 +20,7 @@ class BiAnalystController extends Controller
         $startDate = Carbon::now()->subDays($range - 1)->startOfDay();
 
         $deliveredOrders = Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate]);
 
         $deliveredOrderCount = (int) (clone $deliveredOrders)->count();
@@ -128,7 +128,7 @@ class BiAnalystController extends Controller
         })->values();
 
         $firstDeliveredOrders = Order::query()
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereNotNull('user_id')
             ->selectRaw('user_id, MIN(created_at) as first_delivered_at')
             ->groupBy('user_id');
@@ -138,7 +138,7 @@ class BiAnalystController extends Controller
             ->joinSub($firstDeliveredOrders, 'first_delivered_orders', function ($join) {
                 $join->on('orders.user_id', '=', 'first_delivered_orders.user_id');
             })
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->selectRaw($segmentExpression.' as segment')
             ->selectRaw('COUNT(DISTINCT orders.user_id) as customer_count')
@@ -256,7 +256,7 @@ class BiAnalystController extends Controller
         $selectedCoupon = $activeCoupons->firstWhere('code', $simulatorInput['coupon_code']);
         $scenarioOrders = Order::query()
             ->with('shipping')
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivery_success', 'completed'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get();
 
@@ -335,7 +335,7 @@ class BiAnalystController extends Controller
 
         $winBackCustomers = Order::query()
             ->join('users', 'users.id', '=', 'orders.user_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->select('users.id as user_id', 'users.name', 'users.email')
             ->selectRaw('COUNT(*) as order_count')
             ->selectRaw('SUM(orders.total_amount) as revenue')
@@ -364,7 +364,7 @@ class BiAnalystController extends Controller
         $singleItemUpsellRows = Cart::query()
             ->join('orders', 'orders.id', '=', 'carts.order_id')
             ->join('products', 'products.id', '=', 'carts.product_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->where('orders.quantity', 1)
             ->select('products.id', 'products.title', 'products.price', 'products.stock', 'products.condition')
@@ -469,7 +469,7 @@ class BiAnalystController extends Controller
         $orderItems = Cart::query()
             ->join('orders', 'orders.id', '=', 'carts.order_id')
             ->join('products', 'products.id', '=', 'carts.product_id')
-            ->where('orders.status', 'delivered')
+            ->whereIn('orders.status', ['delivery_success', 'completed'])
             ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->select('orders.id as order_id', 'products.title')
             ->selectRaw('SUM(carts.amount) as line_revenue')

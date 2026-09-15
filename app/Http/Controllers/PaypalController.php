@@ -5,6 +5,7 @@ use Srmklive\PayPal\Services\ExpressCheckout;
 use Illuminate\Http\Request;
 use NunoMaduro\Collision\Provider;
 use App\Models\Cart;
+use App\Models\Order;
 use App\Models\Product;
 use DB;
 class PaypalController extends Controller
@@ -57,7 +58,15 @@ class PaypalController extends Controller
      */
     public function cancel()
     {
-        dd('Your payment is canceled. You can create cancel page here.');
+        $orderId = session('id');
+        if ($orderId) {
+            Cart::where('user_id', auth()->id())->where('order_id', $orderId)->update(['order_id' => null]);
+            request()->session()->flash('error', 'Thanh toán PayPal đã bị hủy.');
+            return redirect()->route('user.order.show', $orderId);
+        }
+
+        request()->session()->flash('error', 'Thanh toán PayPal đã bị hủy.');
+        return redirect()->route('checkout');
     }
   
     /**
@@ -72,10 +81,18 @@ class PaypalController extends Controller
         // return $response;
   
         if (in_array(strtoupper($response['ACK']), ['SUCCESS', 'SUCCESSWITHWARNING'])) {
+            $orderId = session('id');
+            $order = $orderId ? Order::where('id', $orderId)->where('user_id', auth()->id())->first() : null;
+            if ($order) {
+                $order->payment_status = 'paid';
+                $order->payment_method = 'paypal';
+                $order->save();
+                session()->forget('id');
+            }
             request()->session()->flash('success','You successfully pay from Paypal! Thank You');
             session()->forget('cart');
             session()->forget('coupon');
-            return redirect()->route('home');
+            return $order ? redirect()->route('order.success', $order->id) : redirect()->route('home');
         }
   
         request()->session()->flash('error','Something went wrong please try again!!!');

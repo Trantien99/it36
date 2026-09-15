@@ -5,10 +5,17 @@
 @section('main-content')
 @php
     $statusMeta = [
-        'new' => ['label' => 'Mới tạo', 'icon' => 'fas fa-bell', 'tone' => 'tone-new', 'hint' => 'Đơn vừa phát sinh và chưa được xử lý.'],
-        'process' => ['label' => 'Đang xử lý', 'icon' => 'fas fa-box-open', 'tone' => 'tone-process', 'hint' => 'Đơn đang được xác nhận, đóng gói hoặc chuẩn bị giao.'],
-        'delivered' => ['label' => 'Đã giao', 'icon' => 'fas fa-check-circle', 'tone' => 'tone-delivered', 'hint' => 'Đơn hoàn tất. Hệ thống sẽ trừ tồn kho đúng một lần.'],
-        'cancel' => ['label' => 'Đã hủy', 'icon' => 'fas fa-times-circle', 'tone' => 'tone-cancel', 'hint' => 'Đơn dừng xử lý và không tiếp tục giao hàng.'],
+        'pending_confirmation' => ['label' => 'Chờ xác nhận', 'icon' => 'fas fa-bell', 'tone' => 'tone-new', 'hint' => 'Đơn vừa phát sinh và chờ shop kiểm tra.'],
+        'preparing' => ['label' => 'Đang chuẩn bị hàng', 'icon' => 'fas fa-box-open', 'tone' => 'tone-process', 'hint' => 'Shop đã duyệt và kho đang đóng gói.'],
+        'ready' => ['label' => 'Đơn hàng đã sẵn sàng', 'icon' => 'fas fa-box', 'tone' => 'tone-process', 'hint' => 'Đơn đã đóng gói và chờ bàn giao vận chuyển.'],
+        'shipping' => ['label' => 'Đang giao hàng', 'icon' => 'fas fa-truck', 'tone' => 'tone-process', 'hint' => 'Đơn đang được đơn vị vận chuyển phát đến khách.'],
+        'delivery_failed' => ['label' => 'Giao hàng thất bại', 'icon' => 'fas fa-exclamation-triangle', 'tone' => 'tone-cancel', 'hint' => 'Đơn giao chưa thành công và cần giao lại hoặc hoàn hàng.'],
+        'returning' => ['label' => 'Đang hoàn hàng', 'icon' => 'fas fa-undo', 'tone' => 'tone-process', 'hint' => 'Đơn đang được chuyển ngược về kho shop.'],
+        'returned' => ['label' => 'Hoàn hàng thành công', 'icon' => 'fas fa-archive', 'tone' => 'tone-process', 'hint' => 'Shop đã nhận lại và kiểm tra hàng hoàn.'],
+        'delivery_success' => ['label' => 'Giao hàng thành công', 'icon' => 'fas fa-check-circle', 'tone' => 'tone-delivered', 'hint' => 'Khách đã nhận hàng; COD vẫn chờ đối soát nếu chưa thu tiền.'],
+        'completed' => ['label' => 'Hoàn thành', 'icon' => 'fas fa-check-double', 'tone' => 'tone-delivered', 'hint' => 'Đơn đã giao và thanh toán/đối soát hoàn tất.'],
+        'cancelled' => ['label' => 'Đã hủy', 'icon' => 'fas fa-times-circle', 'tone' => 'tone-cancel', 'hint' => 'Đơn dừng xử lý trước khi hoàn tất giao hàng.'],
+        'ended' => ['label' => 'Kết thúc', 'icon' => 'fas fa-flag-checkered', 'tone' => 'tone-muted', 'hint' => 'Đơn đã kết thúc và không còn thao tác.'],
     ];
 
     $paymentMethodMap = [
@@ -18,21 +25,22 @@
     ];
 
     $paymentStatusMap = [
+        'pending' => ['label' => 'Chờ thanh toán', 'class' => 'payment-state-review'],
         'paid' => ['label' => 'Đã thanh toán', 'class' => 'payment-state-paid'],
         'unpaid' => ['label' => 'Chưa thanh toán', 'class' => 'payment-state-unpaid'],
+        'refunded' => ['label' => 'Đã hoàn tiền', 'class' => 'payment-state-review'],
     ];
 
-    $allowedStatuses = [
-        'new' => ['new', 'process', 'delivered', 'cancel'],
-        'process' => ['process', 'delivered', 'cancel'],
-        'delivered' => ['delivered'],
-        'cancel' => ['cancel'],
-    ];
+    $allowedStatuses = \App\Models\Order::ORDER_STATUS_TRANSITIONS;
 
     $currentStatusKey = trim((string) $order->status);
     $selectedStatus = old('status', $currentStatusKey);
     $currentStatus = $statusMeta[$currentStatusKey] ?? ['label' => ucfirst($currentStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'tone-muted', 'hint' => ''];
     $availableStatuses = $allowedStatuses[$currentStatusKey] ?? [$currentStatusKey];
+    $reachedStatuses = $order->statusHistory->pluck('status')->unique()->values()->all();
+    if (!in_array($currentStatusKey, $reachedStatuses, true)) {
+        $reachedStatuses[] = $currentStatusKey;
+    }
     $isLockedFlow = count($availableStatuses) === 1;
 
     $paymentMethodKey = strtolower(trim((string) $order->payment_method));
@@ -92,9 +100,9 @@
                     <div class="edit-order-status-overview">
                         @foreach ($statusMeta as $key => $meta)
                             @php
-                                $overviewClass = $key === $currentStatusKey ? 'is-current' : (in_array($key, $availableStatuses, true) ? 'is-available' : 'is-locked');
+                                $overviewClass = $key === $currentStatusKey ? 'is-current' : (in_array($key, $reachedStatuses, true) ? 'is-reached' : 'is-locked');
                             @endphp
-                            <div class="status-overview-item {{ $overviewClass }}">
+                            <div class="status-overview-item {{ $overviewClass }}" aria-disabled="{{ $overviewClass === 'is-locked' ? 'true' : 'false' }}">
                                 <div class="status-overview-icon {{ $meta['tone'] }}">
                                     <i class="{{ $meta['icon'] }}"></i>
                                 </div>
@@ -113,19 +121,23 @@
                         <div class="form-group mb-4">
                             <label class="edit-order-label">Chọn trạng thái mới</label>
                             <div class="status-choice-grid">
+                                <input type="hidden" name="status" value="{{ old('status', $currentStatusKey) }}">
                                 @foreach ($statusMeta as $key => $meta)
                                     @php
-                                        $isDisabled = !in_array($key, $availableStatuses, true);
+                                        $isReached = in_array($key, $reachedStatuses, true);
+                                        $isCurrent = $key === $currentStatusKey;
+                                        $isDisabled = $isReached || !in_array($key, $availableStatuses, true);
                                     @endphp
                                     <label class="status-choice">
                                         <input
                                             type="radio"
-                                            name="status"
+                                            name="status_choice"
                                             value="{{ $key }}"
-                                            {{ $selectedStatus === $key ? 'checked' : '' }}
+                                            {{ $selectedStatus === $key && !$isDisabled ? 'checked' : '' }}
                                             {{ $isDisabled ? 'disabled' : '' }}
+                                            onchange="this.form.querySelector('input[name=status]').value=this.value"
                                         >
-                                        <span class="status-choice-card">
+                                        <span class="status-choice-card {{ $isReached ? 'is-reached' : '' }} {{ $isCurrent ? 'is-current' : '' }}">
                                             <span class="status-choice-icon {{ $meta['tone'] }}">
                                                 <i class="{{ $meta['icon'] }}"></i>
                                             </span>
@@ -138,6 +150,18 @@
                                 @endforeach
                             </div>
                             @error('status')
+                                <div class="text-danger small mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="edit-order-label" for="payment_status">Trạng thái thanh toán</label>
+                            <select class="form-control" id="payment_status" name="payment_status">
+                                @foreach ($paymentStatusMap as $key => $meta)
+                                    <option value="{{ $key }}" {{ $paymentStatusKey === $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('payment_status')
                                 <div class="text-danger small mt-2">{{ $message }}</div>
                             @enderror
                         </div>
@@ -273,6 +297,7 @@
     .edit-order-status-overview { display: grid; gap: .85rem; margin-bottom: 1.25rem; }
     .status-overview-item { align-items: flex-start; background: linear-gradient(180deg, #fff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-radius: 1rem; display: flex; gap: .9rem; padding: .95rem 1rem; }
     .status-overview-item.is-current { border-color: #2563eb; box-shadow: 0 10px 24px rgba(37, 99, 235, .12); }
+    .status-overview-item.is-reached { border-color: #16a34a; background: #f0fdf4; }
     .status-overview-item.is-locked { opacity: .56; }
     .status-overview-icon { align-items: center; border-radius: .9rem; display: inline-flex; height: 2.8rem; justify-content: center; width: 2.8rem; }
     .status-overview-title { color: #0f172a; font-size: .95rem; font-weight: 800; margin-bottom: .2rem; }
@@ -298,6 +323,8 @@
         transform: translateY(-1px);
     }
     .status-choice input:disabled + .status-choice-card { background: #f8fafc; cursor: not-allowed; opacity: .5; }
+    .status-choice input:disabled + .status-choice-card.is-reached { background: #f0fdf4; border-color: #16a34a; opacity: 1; }
+    .status-choice input:disabled + .status-choice-card.is-current { background: #eff6ff; border-color: #2563eb; opacity: 1; }
     .status-choice-icon { align-items: center; border-radius: .9rem; display: inline-flex; height: 3rem; justify-content: center; width: 3rem; }
     .status-choice-body strong { color: #0f172a; display: block; font-size: .95rem; margin-bottom: .3rem; }
     .status-choice-body small { color: #64748b; display: block; font-size: .84rem; line-height: 1.55; }
