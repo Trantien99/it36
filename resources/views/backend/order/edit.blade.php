@@ -118,47 +118,62 @@
                         @csrf
                         @method('PATCH')
 
-                        <div class="form-group mb-4">
-                            <label class="edit-order-label">Chọn trạng thái mới</label>
-                            <div class="status-choice-grid">
-                                <input type="hidden" name="status" value="{{ old('status', $currentStatusKey) }}">
-                                @foreach ($statusMeta as $key => $meta)
-                                    @php
-                                        $isReached = in_array($key, $reachedStatuses, true);
-                                        $isCurrent = $key === $currentStatusKey;
-                                        $isDisabled = $isReached || !in_array($key, $availableStatuses, true);
-                                    @endphp
-                                    <label class="status-choice">
-                                        <input
-                                            type="radio"
-                                            name="status_choice"
-                                            value="{{ $key }}"
-                                            {{ $selectedStatus === $key && !$isDisabled ? 'checked' : '' }}
-                                            {{ $isDisabled ? 'disabled' : '' }}
-                                            onchange="this.form.querySelector('input[name=status]').value=this.value"
-                                        >
-                                        <span class="status-choice-card {{ $isReached ? 'is-reached' : '' }} {{ $isCurrent ? 'is-current' : '' }}">
-                                            <span class="status-choice-icon {{ $meta['tone'] }}">
-                                                <i class="{{ $meta['icon'] }}"></i>
+                        <input type="hidden" name="status" value="{{ old('status', $currentStatusKey) }}">
+                        @if ($currentStatusKey !== 'ended')
+                            <div class="form-group mb-4">
+                                <div class="edit-order-label-row">
+                                    <label class="edit-order-label">Chọn trạng thái mới</label>
+                                    @if ($currentStatusKey !== 'ended')
+                                        <button type="button" class="btn btn-link btn-sm edit-order-reset-status" data-status="{{ $currentStatusKey }}">
+                                            <i class="fas fa-undo-alt mr-1"></i> Bỏ lựa chọn
+                                        </button>
+                                    @endif
+                                </div>
+                                <div class="status-choice-grid">
+                                    @foreach ($statusMeta as $key => $meta)
+                                        @php
+                                            $isReached = in_array($key, $reachedStatuses, true);
+                                            $isCurrent = $key === $currentStatusKey;
+                                            $isDisabled = $isCurrent || $isReached || !in_array($key, $availableStatuses, true);
+                                        @endphp
+                                        <label class="status-choice">
+                                            <input
+                                                type="radio"
+                                                name="status_choice"
+                                                value="{{ $key }}"
+                                                {{ $selectedStatus === $key && !$isDisabled ? 'checked' : '' }}
+                                                {{ $isDisabled ? 'disabled' : '' }}
+                                            >
+                                            <span class="status-choice-card {{ $isReached ? 'is-reached' : '' }} {{ $isCurrent && !$isDisabled ? 'is-current' : '' }}">
+                                                <span class="status-choice-icon {{ $meta['tone'] }}">
+                                                    <i class="{{ $meta['icon'] }}"></i>
+                                                </span>
+                                                <span class="status-choice-body">
+                                                    <strong>{{ $meta['label'] }}</strong>
+                                                    <small>{{ $meta['hint'] }}</small>
+                                                </span>
                                             </span>
-                                            <span class="status-choice-body">
-                                                <strong>{{ $meta['label'] }}</strong>
-                                                <small>{{ $meta['hint'] }}</small>
-                                            </span>
-                                        </span>
-                                    </label>
-                                @endforeach
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('status')
+                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                @enderror
                             </div>
-                            @error('status')
-                                <div class="text-danger small mt-2">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        @endif
 
                         <div class="form-group mb-4">
-                            <label class="edit-order-label" for="payment_status">Trạng thái thanh toán</label>
-                            <select class="form-control" id="payment_status" name="payment_status">
+                            <div class="edit-order-label-row">
+                                <label class="edit-order-label" for="payment_status">Trạng thái thanh toán</label>
+                                @if ($currentStatusKey !== 'ended' && $paymentStatusKey !== 'refunded')
+                                    <button type="button" class="btn btn-link btn-sm edit-order-reset-payment" data-payment-status="{{ $paymentStatusKey }}">
+                                        <i class="fas fa-undo-alt mr-1"></i> Khôi phục
+                                    </button>
+                                @endif
+                            </div>
+                            <select class="form-control" id="payment_status" name="payment_status" {{ $currentStatusKey === 'ended' || $paymentStatusKey === 'refunded' ? 'disabled' : '' }}>
                                 @foreach ($paymentStatusMap as $key => $meta)
-                                    <option value="{{ $key }}" {{ $paymentStatusKey === $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                                    <option value="{{ $key }}" {{ old('payment_status', $paymentStatusKey) === $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
                                 @endforeach
                             </select>
                             @error('payment_status')
@@ -176,7 +191,7 @@
                         </div>
 
                         <div class="edit-order-actions">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" {{ $currentStatusKey === 'ended' ? 'disabled' : '' }}>
                                 <i class="fas fa-save mr-1"></i> Cập nhật đơn hàng
                             </button>
                             <a href="{{ route('order.show', $order->id) }}" class="btn btn-outline-secondary">
@@ -263,6 +278,44 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+    document.querySelectorAll('input[name="status_choice"]').forEach(function (statusChoice) {
+        statusChoice.addEventListener('click', function () {
+            var form = statusChoice.closest('form');
+            var hiddenStatus = form.querySelector('input[name="status"]');
+            var currentStatus = form.querySelector('.edit-order-reset-status').dataset.status;
+
+            if (hiddenStatus.value === statusChoice.value) {
+                statusChoice.checked = false;
+                hiddenStatus.value = currentStatus;
+            } else {
+                hiddenStatus.value = statusChoice.value;
+            }
+        });
+    });
+
+    document.querySelectorAll('.edit-order-reset-status').forEach(function (resetButton) {
+        resetButton.addEventListener('click', function () {
+            var form = resetButton.closest('form');
+            var currentStatus = resetButton.dataset.status;
+
+            form.querySelectorAll('input[name="status_choice"]').forEach(function (statusChoice) {
+                statusChoice.checked = false;
+            });
+            form.querySelector('input[name="status"]').value = currentStatus;
+        });
+    });
+
+    document.querySelectorAll('.edit-order-reset-payment').forEach(function (resetButton) {
+        resetButton.addEventListener('click', function () {
+            var form = resetButton.closest('form');
+            form.querySelector('select[name="payment_status"]').value = resetButton.dataset.paymentStatus;
+        });
+    });
+</script>
+@endpush
+
 @push('styles')
 <style>
     .edit-order-page { padding-bottom: 2rem; }
@@ -303,7 +356,9 @@
     .status-overview-title { color: #0f172a; font-size: .95rem; font-weight: 800; margin-bottom: .2rem; }
     .status-overview-text { color: #64748b; font-size: .84rem; line-height: 1.5; }
 
-    .edit-order-label { color: #0f172a; display: block; font-size: .92rem; font-weight: 700; margin-bottom: .85rem; }
+    .edit-order-label-row { align-items: center; display: flex; justify-content: space-between; margin-bottom: .85rem; }
+    .edit-order-label { color: #0f172a; display: block; font-size: .92rem; font-weight: 700; margin-bottom: 0; }
+    .edit-order-reset-status { color: #2563eb; padding: 0; }
     .status-choice-grid { display: grid; gap: .85rem; }
     .status-choice { cursor: pointer; display: block; margin-bottom: 0; }
     .status-choice input { display: none; }

@@ -927,10 +927,17 @@
               Đã hủy
               <span>{{ number_format((int) $statusSummary->get('cancelled', 0), 0, ',', '.') }}</span>
             </button>
-            <button type="button" class="order-filter-chip {{ $statusFilter === 'ended' ? 'active' : '' }}" data-status="ended">
-              Kết thúc
-              <span>{{ number_format((int) $statusSummary->get('ended', 0), 0, ',', '.') }}</span>
+          </div>
+
+          <div class="order-filter-group" role="group" aria-label="Lọc trạng thái thanh toán">
+            <button type="button" class="order-filter-chip {{ $paymentStatusFilter === 'all' ? 'active' : '' }}" data-payment-status="all">
+              Tất cả thanh toán
             </button>
+            @foreach (\App\Models\Order::PAYMENT_STATUS_LABELS as $paymentKey => $paymentLabel)
+              <button type="button" class="order-filter-chip {{ $paymentStatusFilter === $paymentKey ? 'active' : '' }}" data-payment-status="{{ $paymentKey }}">
+                {{ $paymentLabel }}
+              </button>
+            @endforeach
           </div>
 
           <div class="order-toolbar-search">
@@ -946,6 +953,21 @@
       </div>
 
       <div class="card-body">
+        @if ($statusFilter !== 'all' || $paymentStatusFilter !== 'all')
+          <div class="alert alert-light border d-flex align-items-center justify-content-between flex-wrap mb-3">
+            <span>
+              <i class="fas fa-filter mr-2"></i>
+              Đang lọc:
+              <strong>{{ $statusFilter === 'all' ? 'Tất cả trạng thái đơn' : (\App\Models\Order::ORDER_STATUS_LABELS[$statusFilter] ?? $statusFilter) }}</strong>
+              <span class="mx-1">+</span>
+              <strong>{{ $paymentStatusFilter === 'all' ? 'Tất cả trạng thái thanh toán' : (\App\Models\Order::PAYMENT_STATUS_LABELS[$paymentStatusFilter] ?? $paymentStatusFilter) }}</strong>
+            </span>
+            @if ($orders->isEmpty())
+              <span class="text-muted small">Không có đơn nào khớp cả hai điều kiện.</span>
+            @endif
+          </div>
+        @endif
+
         @if ($orders->count())
           <div class="table-responsive">
             <table class="table order-table" id="order-dataTable" width="100%" cellspacing="0">
@@ -964,6 +986,9 @@
                 @foreach ($orders as $order)
                   @php
                     $statusKey = trim((string) $order->status);
+                    if ($statusKey === 'ended') {
+                      $statusKey = optional($order->statusHistory->where('status', '!=', 'ended')->last())->status ?: $statusKey;
+                    }
                     $status = $statusMeta[$statusKey] ?? $fallbackStatus;
 
                     $paymentMethodKey = strtolower(trim((string) $order->payment_method));
@@ -980,7 +1005,7 @@
                     $avgPerItem = $order->quantity > 0 ? ($order->total_amount / $order->quantity) : $order->total_amount;
                   @endphp
 
-                  <tr data-order-status="{{ $statusKey }}">
+                  <tr data-order-status="{{ $statusKey }}" data-payment-status="{{ $paymentStateKey }}">
                     <td>
                       <div class="order-table-title">{{ $order->order_number }}</div>
                       <div class="order-table-subtext">Mã nội bộ #{{ $order->id }}</div>
@@ -1122,20 +1147,30 @@
           orderTable.search(this.value).draw();
         });
 
-        $('.order-filter-chip').on('click', function () {
-          const $chip = $(this);
-          const status = $chip.data('status');
-          const url = new URL(window.location.href);
+      }
 
+      $('.order-filter-chip').on('click', function () {
+        const $chip = $(this);
+        const url = new URL(window.location.href);
+
+        if ($chip.is('[data-payment-status]')) {
+          const paymentStatus = $chip.data('payment-status');
+          if (paymentStatus === 'all') {
+            url.searchParams.delete('payment_status');
+          } else {
+            url.searchParams.set('payment_status', paymentStatus);
+          }
+        } else {
+          const status = $chip.data('status');
           if (status === 'all') {
             url.searchParams.delete('status');
           } else {
             url.searchParams.set('status', status);
           }
-          url.searchParams.delete('page');
-          window.location.href = url.toString();
-        });
-      }
+        }
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+      });
 
       $('#orderQuickRefresh').on('click', function () {
         window.location.reload();

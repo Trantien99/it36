@@ -59,8 +59,15 @@
                     <td>{{number_format($order->total_amount,0)}}đ</td>
                     <td>
                         @php
-                          $displayStatusKey = in_array($order->status, ['returning', 'returned'], true) ? 'delivery_failed' : $order->status;
-                          $statusLabel = $displayStatusKey === 'ended' ? 'Hoàn thành' : (\App\Models\Order::ORDER_STATUS_LABELS[$displayStatusKey] ?? ucfirst($displayStatusKey));
+                            $displayStatusKey = $order->status;
+                            if ($displayStatusKey === 'ended') {
+                              $displayStatusKey = optional($order->statusHistory->where('status', '!=', 'ended')->last())->status ?: 'completed';
+                            }
+                            $displayStatusKey = in_array($displayStatusKey, ['returning', 'returned'], true) ? 'delivery_failed' : $displayStatusKey;
+                              if ($displayStatusKey === 'completed') {
+                                $displayStatusKey = 'delivery_success';
+                              }
+                            $statusLabel = \App\Models\Order::ORDER_STATUS_LABELS[$displayStatusKey] ?? ucfirst($displayStatusKey);
                           $statusClassMap = [
                               'pending_confirmation' => 'badge-primary',
                               'preparing' => 'badge-warning',

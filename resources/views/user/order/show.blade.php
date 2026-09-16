@@ -19,7 +19,27 @@
     })->all();
 
     $currentStatusKey = trim((string) $order->status);
+    if ($currentStatusKey === 'ended') {
+        $currentStatusKey = optional($order->statusHistory->where('status', '!=', 'ended')->last())->status ?: 'completed';
+    }
     $flowStatusKey = in_array($currentStatusKey, ['returning', 'returned'], true) ? 'delivery_failed' : $currentStatusKey;
+    if ($flowStatusKey === 'completed') {
+        $flowStatusKey = 'delivery_success';
+    }
+    $reachedFlowStatuses = $order->statusHistory
+        ->pluck('status')
+        ->map(function ($status) {
+            if (in_array($status, ['returning', 'returned'], true)) {
+                return 'delivery_failed';
+            }
+
+            return $status === 'completed' ? 'delivery_success' : $status;
+        })
+        ->unique()
+        ->values();
+    if (!$reachedFlowStatuses->contains($flowStatusKey)) {
+        $reachedFlowStatuses->push($flowStatusKey);
+    }
     $currentStatus = $statusMeta[$flowStatusKey] ?? ['label' => ucfirst($flowStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'status-muted', 'summary' => 'Đơn hàng đang được cập nhật trạng thái.'];
 
     $paymentMethodKey = strtolower(trim((string) $order->payment_method));
@@ -46,8 +66,8 @@
         'returning' => 6,
         'returned' => 7,
         'delivery_success' => 8,
-        'completed' => 9,
-        'ended' => 10,
+        'completed' => 8,
+        'ended' => 8,
         'cancelled' => 0,
     ];
 
@@ -58,7 +78,6 @@
         'shipping' => ['label' => 'Đang giao hàng', 'icon' => 'fas fa-truck'],
         'delivery_failed' => ['label' => 'Giao hàng thất bại', 'icon' => 'fas fa-exclamation-triangle'],
         'delivery_success' => ['label' => 'Giao hàng thành công', 'icon' => 'fas fa-check-circle'],
-        'completed' => ['label' => 'Hoàn thành', 'icon' => 'fas fa-check-double'],
     ];
 
     $currentRank = $progressRank[$flowStatusKey] ?? 0;
@@ -153,14 +172,11 @@
             <div class="tracking-grid">
                 @foreach ($trackingStages as $key => $stage)
                     @php
-                        if ($flowStatusKey === 'cancelled') {
-                            $stageState = 'is-muted';
-                        } else {
-                            $stageRank = $progressRank[$key] ?? 0;
-                            $stageState = $stageRank < $currentRank ? 'is-done' : ($stageRank === $currentRank ? 'is-current' : 'is-muted');
-                        }
+                        $stageIsCurrent = $key === $flowStatusKey;
+                        $stageWasReached = $reachedFlowStatuses->contains($key);
+                        $stageState = $stageIsCurrent ? 'is-current' : ($stageWasReached ? 'is-done' : 'is-disabled');
                     @endphp
-                    <div class="tracking-step {{ $stageState }}">
+                    <div class="tracking-step {{ $stageState }}" aria-disabled="{{ $stageState === 'is-disabled' ? 'true' : 'false' }}">
                         <div class="tracking-step-icon">
                             <i class="{{ $stage['icon'] }}"></i>
                         </div>
@@ -466,7 +482,9 @@
     .tracking-step.is-current .tracking-step-icon { background: rgba(37, 99, 235, .12); color: #2563eb; }
     .tracking-step.is-done { border-color: rgba(37, 99, 235, .28); }
     .tracking-step.is-current { border-color: #2563eb; box-shadow: 0 12px 24px rgba(37, 99, 235, .12); }
-    .tracking-step.is-muted { opacity: .58; }
+    .tracking-step.is-disabled { opacity: .42; filter: grayscale(.35); }
+    .tracking-step.is-disabled .tracking-step-icon,
+    .tracking-step.is-disabled .tracking-step-title { color: #94a3b8; }
 
     .tracking-alert {
         border-radius: 1rem;

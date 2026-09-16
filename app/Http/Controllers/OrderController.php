@@ -26,21 +26,43 @@ class OrderController extends Controller
     public function index()
     {
         $statusFilter = trim((string) request()->query('status', 'all'));
+        $paymentStatusFilter = trim((string) request()->query('payment_status', 'all'));
         $allowedStatuses = array_keys(Order::ORDER_STATUS_LABELS);
+        $allowedPaymentStatuses = array_keys(Order::PAYMENT_STATUS_LABELS);
         if ($statusFilter !== 'all' && !in_array($statusFilter, $allowedStatuses, true)) {
             $statusFilter = 'all';
         }
+        if ($paymentStatusFilter !== 'all' && !in_array($paymentStatusFilter, $allowedPaymentStatuses, true)) {
+            $paymentStatusFilter = 'all';
+        }
 
-        $ordersQuery = Order::with('shipping')->orderBy('id', 'DESC');
+        $ordersQuery = Order::with(['shipping', 'statusHistory'])->orderBy('id', 'DESC');
         if ($statusFilter !== 'all') {
-            $ordersQuery->where('status', $statusFilter);
+            $ordersQuery->where(function ($query) use ($statusFilter) {
+                $query->where('status', $statusFilter)
+                    ->orWhere(function ($endedQuery) use ($statusFilter) {
+                        $endedQuery->where('status', 'ended')
+                            ->whereHas('statusHistory', function ($historyQuery) use ($statusFilter) {
+                                $historyQuery->where('status', $statusFilter);
+                            });
+                    });
+            });
+        }
+        if ($paymentStatusFilter !== 'all') {
+            $ordersQuery->where('payment_status', $paymentStatusFilter);
         }
         $orders = $ordersQuery->paginate(10)->withQueryString();
 
-        $statusSummary = Order::query()
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        $statusSummary = Order::with('statusHistory:id,order_id,status')
+            ->get()
+            ->groupBy(function ($order) {
+                if ($order->status !== 'ended') {
+                    return $order->status;
+                }
+
+                return optional($order->statusHistory->where('status', '!=', 'ended')->last())->status ?: 'ended';
+            })
+            ->map->count();
 
         $paymentSummary = Order::query()
             ->selectRaw('payment_method, COUNT(*) as total')
@@ -80,7 +102,8 @@ class OrderController extends Controller
             'todayOrders',
             'latestOrder',
             'fulfillmentRate',
-            'statusFilter'
+            'statusFilter',
+            'paymentStatusFilter'
         ));
     }
 
@@ -317,11 +340,30 @@ class OrderController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if (in_array($nextStatus, ['cancelled', 'returned'], true) && $order->payment_status === 'paid') {
-            $data['payment_status'] = 'refunded';
+        if ($nextStatus === 'ended' && $order->payment_status === 'paid' && $request->input('payment_status') !== 'refunded') {
+            request()->session()->flash('error', 'Đơn đã thanh toán phải chuyển sang Đã hoàn tiền trước khi kết thúc.');
+            return redirect()->back()->withInput();
         }
 
-        $status = DB::transaction(function () use ($order, $data, $previousStatus, $nextStatus) {
+        if ($request->input('payment_status') === 'refunded'
+            && $order->payment_status !== 'refunded'
+            && (!in_array($nextStatus, ['cancelled', 'returned'], true) || $order->payment_status !== 'paid')) {
+            request()->session()->flash('error', 'Chỉ có thể hoàn tiền cho đơn đã hủy hoặc hoàn hàng sau khi đã thanh toán.');
+            return redirect()->back()->withInput();
+        }
+
+        $statusesToRecord = [$nextStatus];
+        $submittedPaymentStatus = $request->input('payment_status', $order->payment_status);
+        $canAutoEnd = $nextStatus === 'completed'
+            || (in_array($nextStatus, ['cancelled', 'returned'], true)
+                && in_array($submittedPaymentStatus, ['pending', 'unpaid', 'refunded'], true));
+
+        if ($canAutoEnd) {
+            $statusesToRecord[] = 'ended';
+            $data['status'] = 'ended';
+        }
+
+        $status = DB::transaction(function () use ($order, $data, $previousStatus, $nextStatus, $statusesToRecord) {
             if(in_array($nextStatus, Order::STOCK_DECREMENT_STATUSES, true) && !in_array($previousStatus, Order::STOCK_DECREMENT_STATUSES, true)){
                 foreach($order->cart as $cart){
                     $product = $cart->product;
@@ -336,13 +378,21 @@ class OrderController extends Controller
 
             $saved = $order->fill($data)->save();
 
-            if ($saved && $previousStatus !== $nextStatus) {
-                OrderStatusHistory::create([
-                    'order_id' => $order->id,
-                    'status' => $nextStatus,
-                    'payment_status' => $order->payment_status,
-                    'changed_by' => auth()->id(),
-                ]);
+            if ($saved) {
+                foreach ($statusesToRecord as $statusToRecord) {
+                    if ($previousStatus === $statusToRecord) {
+                        continue;
+                    }
+
+                    OrderStatusHistory::create([
+                        'order_id' => $order->id,
+                        'status' => $statusToRecord,
+                        'payment_status' => $order->payment_status,
+                        'changed_by' => auth()->id(),
+                    ]);
+
+                    $previousStatus = $statusToRecord;
+                }
             }
 
             return $saved;

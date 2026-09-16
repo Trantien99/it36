@@ -52,11 +52,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if (
-            $exception instanceof TokenMismatchException &&
-            $request->isMethod('post') &&
-            ($request->is('logout') || $request->is('user/logout'))
-        ) {
+        if ($exception instanceof TokenMismatchException) {
             if (Auth::check()) {
                 Auth::logout();
             }
@@ -65,8 +61,8 @@ class Handler extends ExceptionHandler
             $request->session()->regenerateToken();
 
             return redirect()
-                ->route('home')
-                ->with('success', 'Phien dang nhap da het han. Ban da duoc dang xuat.');
+                ->route('login.form')
+                ->with('error', 'Phien dang nhap da het han. Vui long dang nhap lai.');
         }
 
         return parent::render($request, $exception);

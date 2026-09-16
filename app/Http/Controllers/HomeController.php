@@ -55,7 +55,7 @@ class HomeController extends Controller
 
     // Order
     public function orderIndex(){
-        $orders = Order::with('shipping')
+        $orders = Order::with(['shipping', 'statusHistory'])
             ->where('user_id', auth()->user()->id)
             ->orderBy('id', 'DESC')
             ->paginate(10);
@@ -87,7 +87,7 @@ class HomeController extends Controller
 
     public function orderShow($id)
     {
-        $order = Order::with(['shipping', 'cart_info.product'])
+        $order = Order::with(['shipping', 'cart_info.product', 'statusHistory'])
             ->where('user_id', auth()->user()->id)
             ->findOrFail($id);
         return view('user.order.show')->with('order',$order);

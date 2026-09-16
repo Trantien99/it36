@@ -129,7 +129,23 @@
                     <td>{{$order->quantity}}</td>
                     <td>{{number_format($order->total_amount,0)}}đ</td>
                     <td>
-                        <span class="badge badge-primary">{{ \App\Models\Order::ORDER_STATUS_LABELS[$order->status] ?? ucfirst($order->status) }}</span>
+                      @php
+                        $flowStatusKey = in_array($order->status, ['returning', 'returned'], true) ? 'delivery_failed' : $order->status;
+                        $statusLabel = \App\Models\Order::ORDER_STATUS_LABELS[$flowStatusKey] ?? ucfirst($flowStatusKey);
+                        $statusClassMap = [
+                          'pending_confirmation' => 'badge-primary',
+                          'preparing' => 'badge-warning',
+                          'ready' => 'badge-warning',
+                          'shipping' => 'badge-warning',
+                          'delivery_failed' => 'badge-danger',
+                          'delivery_success' => 'badge-success',
+                          'completed' => 'badge-success',
+                          'cancelled' => 'badge-danger',
+                          'ended' => 'badge-success',
+                        ];
+                        $statusClass = $statusClassMap[$flowStatusKey] ?? 'badge-primary';
+                      @endphp
+                      <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     </td>
                     <td>
                         <a href="{{route('user.order.show',$order->id)}}" class="btn btn-warning btn-sm float-left ml-3" style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" title="view" data-placement="bottom"><i class="fas fa-eye"></i></a>
