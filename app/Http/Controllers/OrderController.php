@@ -481,7 +481,7 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $query = Order::with('cart_info');
+        $query = Order::with(['cart_info.product', 'shipping']);
 
         if (auth()->user()->role !== 'admin') {
             $query->where('user_id', auth()->id());
@@ -489,7 +489,14 @@ class OrderController extends Controller
 
         $order = $query->findOrFail($request->id);
         $file_name=$order->order_number.'-'.$order->first_name.'.pdf';
-        $pdf=PDF::loadview('backend.order.pdf',compact('order'));
+        $html = view('backend.order.pdf', compact('order'))->render();
+        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+        $pdf=PDF::loadHTML($html);
+        $dompdf = $pdf->getDomPDF();
+        $dompdf->set_option('isRemoteEnabled', false);
+        $dompdf->set_option('fontDir', base_path('vendor/dompdf/dompdf/lib/fonts'));
+        $dompdf->set_option('fontCache', base_path('vendor/dompdf/dompdf/lib/fonts'));
+        $dompdf->set_option('defaultFont', 'DejaVu Sans');
         return $pdf->download($file_name);
     }
     // Income chart

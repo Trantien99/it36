@@ -2,34 +2,25 @@
 <html>
 <head>
   <title>Đơn hàng @if($order)- {{$order->order_number}} @endif</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
 
 @if($order)
 <style type="text/css">
-  .invoice-header {
-    background: #f7f7f7;
-    padding: 10px 20px 10px 20px;
-    border-bottom: 1px solid gray;
-      font-family:'Arial', Arial;
-
-  }
-  .site-logo {
-    margin-top: 20px;
+  body, body * {
+    font-family: 'DejaVu Sans';
   }
   .invoice-right-top h3 {
     padding-right: 20px;
     margin-top: 20px;
     color: green;
     font-size: 30px!important;
-      font-family:'Arial', Arial;
   }
   .invoice-left-top {
     border-left: 4px solid green;
     padding-left: 20px;
     padding-top: 20px;
-      font-family:'Arial', Arial;
   }
   .invoice-left-top p {
     margin: 0;
@@ -49,12 +40,7 @@
     color: green;
     font-size: 25px;
     font-weight: normal;
-    font-family: serif;
     margin-top: 20px;
-  }
-  .site-address p {
-    line-height: 6px;
-    font-weight: 300;
   }
   .table tfoot .empty {
     border: none;
@@ -72,19 +58,6 @@
     padding: .30rem;
   }
 </style>
-  <div class="invoice-header">
-    <div class="float-left site-logo">
-      <img src="{{asset('backend/img/LOGO_1.jpg')}}" alt="" style="width: 300px">
-    </div>
-    <div class="float-right site-address">
-      <h4>{{env('APP_NAME')}}</h4>
-      <p>{{env('APP_ADDRESS')}}</p>
-      <p>Số điện thoại: 0398314279</p>
-        <p>Địa chỉ: Cầu Giấy-Hà Nội</p>
-      <p>Email: jellyboutique@gmail.com</p>
-    </div>
-    <div class="clearfix"></div>
-  </div>
   <div class="invoice-description">
     <div class="invoice-left-top float-left">
       <h6>Hóa đơn của</h6>
@@ -123,14 +96,9 @@
       </thead>
       <tbody>
       @foreach($order->cart_info as $cart)
-      @php
-        $product=DB::table('products')->select('title')->where('id',$cart->product_id)->get();
-      @endphp
         <tr>
           <td><span>
-              @foreach($product as $pro)
-                {{$pro->title}}
-              @endforeach
+              {{$cart->product->title ?? 'Sản phẩm không còn tồn tại'}}
             </span></td>
           <td>x{{$cart->quantity}}</td>
           <td><span>{{number_format($cart->price,0)}}đ</span></td>
@@ -152,11 +120,8 @@
       @endif --}}
         <tr>
           <th scope="col" class="empty"></th>
-          @php
-            $shipping_charge=DB::table('shippings')->where('id',$order->shipping_id)->pluck('price');
-          @endphp
           <th scope="col" class="text-right ">Phí vận chuyển:</th>
-          <th><span>{{number_format($shipping_charge[0],0)}}đ</span></th>
+          <th><span>{{number_format(optional($order->shipping)->price ?? 0,0)}}đ</span></th>
         </tr>
         <tr>
           <th scope="col" class="empty"></th>

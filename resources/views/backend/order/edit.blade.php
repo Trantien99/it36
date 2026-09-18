@@ -55,6 +55,7 @@
     $money = function ($value) {
         return number_format((float) $value, 0, ',', '.') . 'đ';
     };
+    $displayTimezone = 'Asia/Ho_Chi_Minh';
 @endphp
 
 <div class="container-fluid edit-order-page">
@@ -81,8 +82,8 @@
                         <i class="{{ $currentStatus['icon'] }} mr-2"></i>{{ $currentStatus['label'] }}
                     </span>
                     <div class="edit-order-current-meta">
-                        <div><strong>Tạo lúc:</strong> {{ optional($order->created_at)->format('d/m/Y H:i') }}</div>
-                        <div><strong>Cập nhật:</strong> {{ optional($order->updated_at)->format('d/m/Y H:i') }}</div>
+                        <div><strong>Tạo lúc:</strong> {{ $order->created_at ? $order->created_at->copy()->timezone($displayTimezone)->format('d/m/Y H:i') : 'Chưa cập nhật' }}</div>
+                        <div><strong>Cập nhật:</strong> {{ $order->updated_at ? $order->updated_at->copy()->timezone($displayTimezone)->format('d/m/Y H:i') : 'Chưa cập nhật' }}</div>
                     </div>
                 </div>
             </div>
@@ -101,6 +102,7 @@
                         @foreach ($statusMeta as $key => $meta)
                             @php
                                 $overviewClass = $key === $currentStatusKey ? 'is-current' : (in_array($key, $reachedStatuses, true) ? 'is-reached' : 'is-locked');
+                                $statusHistory = $order->statusHistory->where('status', $key)->last();
                             @endphp
                             <div class="status-overview-item {{ $overviewClass }}" aria-disabled="{{ $overviewClass === 'is-locked' ? 'true' : 'false' }}">
                                 <div class="status-overview-icon {{ $meta['tone'] }}">
@@ -108,6 +110,9 @@
                                 </div>
                                 <div>
                                     <div class="status-overview-title">{{ $meta['label'] }}</div>
+                                    <div class="status-overview-time">
+                                        {{ $statusHistory && $statusHistory->created_at ? $statusHistory->created_at->copy()->timezone($displayTimezone)->format('H:i d/m/Y') : 'Chưa cập nhật' }}
+                                    </div>
                                     <div class="status-overview-text">{{ $meta['hint'] }}</div>
                                 </div>
                             </div>
@@ -354,6 +359,7 @@
     .status-overview-item.is-locked { opacity: .56; }
     .status-overview-icon { align-items: center; border-radius: .9rem; display: inline-flex; height: 2.8rem; justify-content: center; width: 2.8rem; }
     .status-overview-title { color: #0f172a; font-size: .95rem; font-weight: 800; margin-bottom: .2rem; }
+    .status-overview-time { color: #64748b; font-size: .78rem; font-weight: 700; margin-bottom: .25rem; }
     .status-overview-text { color: #64748b; font-size: .84rem; line-height: 1.5; }
 
     .edit-order-label-row { align-items: center; display: flex; justify-content: space-between; margin-bottom: .85rem; }
