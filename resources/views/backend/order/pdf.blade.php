@@ -99,7 +99,11 @@
         <tr>
           <td><span>
               {{$cart->product->title ?? 'Sản phẩm không còn tồn tại'}}
-            </span></td>
+            </span>
+            @if($cart->color_code)
+              <br><small>Mã màu: {{$cart->color_code}}</small>
+            @endif
+          </td>
           <td>x{{$cart->quantity}}</td>
           <td><span>{{number_format($cart->price,0)}}đ</span></td>
         </tr>

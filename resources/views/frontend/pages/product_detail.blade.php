@@ -160,17 +160,20 @@
 												<p class="description">{!!($product_detail->summary)!!}</p>
 											</div>
 											<!--/ End Description -->
-											<!-- Color -->
-											{{-- <div class="color">
-												<h4>Tùy chọn hiện có <span>Màu sắc</span></h4>
-												<ul>
-													<li><a href="#" class="one"><i class="ti-check"></i></a></li>
-													<li><a href="#" class="two"><i class="ti-check"></i></a></li>
-													<li><a href="#" class="three"><i class="ti-check"></i></a></li>
-													<li><a href="#" class="four"><i class="ti-check"></i></a></li>
-												</ul>
-											</div> --}}
-											<!--/ End Color -->
+											@if($product_detail->color_code)
+												@php $colorCodes = array_filter(array_map('trim', explode(',', $product_detail->color_code))); @endphp
+												<div class="color mt-4">
+													<h4>Màu sắc</h4>
+													<div class="d-flex flex-wrap">
+														@foreach($colorCodes as $colorCode)
+															<button type="button" class="product-color-button mr-2 mb-2 {{ $loop->first ? 'is-selected' : '' }}" data-color-code="{{e($colorCode)}}" title="Chọn màu {{e($colorCode)}}">
+																<span style="background-color:{{e($colorCode)}}"></span>
+																<strong>{{e($colorCode)}}</strong>
+															</button>
+														@endforeach
+													</div>
+												</div>
+											@endif
 											<!-- Size -->
 											@if($product_detail->size)
 												<div class="size mt-4">
@@ -217,7 +220,10 @@
 																</button>
 															</div>
 															<input type="hidden" name="slug" value="{{$product_detail->slug}}">
-															<input type="text" name="quant[1]" class="input-number"  data-min="1" data-max="1000000" value="1" id="quantity">
+															@if($product_detail->color_code)
+																<input type="hidden" id="selected-color-code" name="color_code" value="{{e($colorCodes[0] ?? '')}}">
+															@endif
+															<input type="number" name="quant[1]" class="input-number" data-min="1" data-max="{{$product_detail->stock}}" value="1" id="quantity" min="1" max="{{$product_detail->stock}}">
 															<div class="button plus">
 																<button type="button" class="btn btn-primary btn-number" data-type="plus" data-field="quant[1]">
 																	<i class="ti-plus"></i>
@@ -981,6 +987,32 @@
 			border-top: 1px solid rgba(226, 232, 240, 0.9);
 		}
 
+		.product-color-button{
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 10px;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			background: #fff;
+			color: #334155;
+			cursor: pointer;
+			transition: border-color .15s ease, box-shadow .15s ease;
+		}
+
+		.product-color-button span{
+			display: inline-block;
+			width: 24px;
+			height: 24px;
+			border: 1px solid #cbd5e1;
+			border-radius: 50%;
+		}
+
+		.product-color-button.is-selected{
+			border-color: #0f766e;
+			box-shadow: 0 0 0 2px rgba(15, 118, 110, .18);
+		}
+
 		.related-product__static{
 			display: flex;
 			flex-wrap: wrap;
@@ -1343,6 +1375,12 @@
 			window.addEventListener('resize', resetTilt);
 
 			resetTilt();
+		});
+
+		$('.product-color-button').on('click', function () {
+			$('.product-color-button').removeClass('is-selected');
+			$(this).addClass('is-selected');
+			$('#selected-color-code').val($(this).data('color-code'));
 		});
 	});
 </script>

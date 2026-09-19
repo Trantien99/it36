@@ -40,7 +40,7 @@ class Order extends Model
         'ended' => ['ended'],
     ];
 
-    public const STOCK_DECREMENT_STATUSES = ['delivery_success'];
+    public const STOCK_DECREMENT_STATUSES = ['preparing'];
 
     protected $fillable=['user_id','order_number','sub_total','quantity','delivery_charge','status','total_amount','first_name','last_name','country','post_code','address1','address2','phone','email','payment_method','payment_status','shipping_id','coupon'];
 

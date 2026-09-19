@@ -228,6 +228,9 @@
                                     <div class="product-subtitle">
                                         {{ number_format($item->quantity, 0, ',', '.') }} x {{ $money($item->price) }}
                                     </div>
+                                    @if($item->color_code)
+                                        <div class="product-note">Mã màu: {{ $item->color_code }}</div>
+                                    @endif
                                     @if(optional($item->product)->summary)
                                         <div class="product-note">{{ \Illuminate\Support\Str::limit(strip_tags(optional($item->product)->summary), 120) }}</div>
                                     @endif

@@ -510,9 +510,18 @@
 														</ul>
 													</div>
 												@endif
-												<form action="{{route('single-add-to-cart')}}" method="POST">
-													@csrf
-													<div class="quantity">
+													<form action="{{route('single-add-to-cart')}}" method="POST">
+														@csrf
+														@if($product->color_code)
+															@php $colorCodes = array_filter(array_map('trim', explode(',', $product->color_code))); @endphp
+															<label for="product-color-code-{{$product->id}}">Chọn mã màu</label>
+															<select id="product-color-code-{{$product->id}}" name="color_code" class="form-control mb-3" required>
+																@foreach($colorCodes as $colorCode)
+																	<option value="{{e($colorCode)}}">{{e($colorCode)}}</option>
+																@endforeach
+															</select>
+														@endif
+														<div class="quantity">
 														<!-- Input Order -->
 														<div class="input-group">
 															<div class="button minus">

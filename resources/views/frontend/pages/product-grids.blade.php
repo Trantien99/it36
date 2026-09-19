@@ -487,19 +487,33 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    {{-- <div class="col-lg-6 col-12">
-                                                        <h5 class="title">Màu sắc</h5>
-                                                        <select>
-                                                            <option selected="selected">orange</option>
-                                                            <option>purple</option>
-                                                            <option>black</option>
-                                                            <option>pink</option>
-                                                        </select>
-                                                    </div> --}}
+                                                    @if($product->color_code)
+                                                        <div class="col-lg-6 col-12">
+                                                            <h5 class="title">Màu sắc</h5>
+                                                            @php $colorCodes = array_filter(array_map('trim', explode(',', $product->color_code))); @endphp
+                                                            <div class="d-flex flex-wrap">
+                                                                @foreach($colorCodes as $colorCode)
+                                                                    <span class="mr-2 mb-1 d-inline-flex align-items-center">
+                                                                        <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background-color:{{e($colorCode)}};border:1px solid #ddd"></span>
+                                                                        <span class="ml-1">{{e($colorCode)}}</span>
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <form action="{{route('single-add-to-cart')}}" method="POST">
                                                 @csrf
+                                                @if($product->color_code)
+                                                    @php $colorCodes = array_filter(array_map('trim', explode(',', $product->color_code))); @endphp
+                                                    <label for="product-color-code-{{$product->id}}">Chọn mã màu</label>
+                                                    <select id="product-color-code-{{$product->id}}" name="color_code" class="form-control mb-3" required>
+                                                        @foreach($colorCodes as $colorCode)
+                                                            <option value="{{e($colorCode)}}">{{e($colorCode)}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @endif
                                                 <div class="quantity">
                                                     <!-- Input Order -->
                                                     <div class="input-group">

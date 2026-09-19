@@ -31,9 +31,15 @@ class CartController extends Controller
             return back();
         }
 
+        $colorCode = $this->getSelectedColorCode($product, $request->input('color_code'));
+        if ($colorCode === false) {
+            return back()->with('error', 'Vui lòng chọn mã màu hợp lệ.');
+        }
+
         $already_cart = Cart::where('user_id', auth()->id())
             ->whereNull('order_id')
             ->where('product_id', $product->id)
+            ->where('color_code', $colorCode)
             ->first();
 
         if ($already_cart) {
@@ -49,6 +55,7 @@ class CartController extends Controller
             $cart = new Cart();
             $cart->user_id = auth()->id();
             $cart->product_id = $product->id;
+            $cart->color_code = $colorCode;
             $cart->price = $product->price - (($product->price * $product->discount) / 100);
             $cart->quantity = 1;
             $cart->amount = $cart->price * $cart->quantity;
@@ -73,9 +80,19 @@ class CartController extends Controller
         $request->validate([
             'slug' => 'required',
             'quant' => 'required',
+            'color_code' => 'nullable|string',
         ]);
 
         $product = Product::where('slug', $request->slug)->first();
+        if (empty($product)) {
+            return back()->with('error', 'Sản phẩm không hợp lệ');
+        }
+
+        $colorCode = $this->getSelectedColorCode($product, $request->input('color_code'));
+        if ($colorCode === false) {
+            return back()->with('error', 'Vui lòng chọn mã màu hợp lệ.');
+        }
+
         if ($product->stock < $request->quant[1]) {
             return back()->with('error', 'Hết hàng, bạn có thể thêm sản phẩm khác.');
         }
@@ -88,6 +105,7 @@ class CartController extends Controller
         $already_cart = Cart::where('user_id', auth()->id())
             ->whereNull('order_id')
             ->where('product_id', $product->id)
+            ->where('color_code', $colorCode)
             ->first();
 
         if ($already_cart) {
@@ -103,6 +121,7 @@ class CartController extends Controller
             $cart = new Cart();
             $cart->user_id = auth()->id();
             $cart->product_id = $product->id;
+            $cart->color_code = $colorCode;
             $cart->price = $product->price - (($product->price * $product->discount) / 100);
             $cart->quantity = $request->quant[1];
             $cart->amount = $product->price * $request->quant[1];
@@ -116,6 +135,22 @@ class CartController extends Controller
 
         request()->session()->flash('success', 'Sản phẩm đã được thêm vào giỏ hàng.');
         return back();
+    }
+
+    protected function getSelectedColorCode(Product $product, $selectedColorCode)
+    {
+        $colorCodes = array_values(array_filter(array_map('trim', explode(',', (string) $product->color_code))));
+
+        if (empty($colorCodes)) {
+            return null;
+        }
+
+        $selectedColorCode = strtoupper(trim((string) $selectedColorCode));
+        if ($selectedColorCode === '' || !in_array($selectedColorCode, array_map('strtoupper', $colorCodes), true)) {
+            return false;
+        }
+
+        return $selectedColorCode;
     }
 
     public function cartDelete(Request $request)

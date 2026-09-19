@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
+use App\Models\Product;
 use App\Models\Settings;
 use App\Models\Shipping;
 use App\User;
@@ -363,16 +364,36 @@ class OrderController extends Controller
             $data['status'] = 'ended';
         }
 
-        $status = DB::transaction(function () use ($order, $data, $previousStatus, $nextStatus, $statusesToRecord) {
+        $stockError = null;
+        $status = DB::transaction(function () use ($order, $data, $previousStatus, $nextStatus, $statusesToRecord, &$stockError) {
             if(in_array($nextStatus, Order::STOCK_DECREMENT_STATUSES, true) && !in_array($previousStatus, Order::STOCK_DECREMENT_STATUSES, true)){
                 foreach($order->cart as $cart){
-                    $product = $cart->product;
+                    $product = Product::query()->whereKey($cart->product_id)->lockForUpdate()->first();
                     if (!$product) {
                         continue;
                     }
 
+                    if ($product->stock < $cart->quantity) {
+                        $stockError = 'Không đủ tồn kho để xác nhận đơn hàng.';
+                        return false;
+                    }
+
                     $product->stock -= $cart->quantity;
                     $product->save();
+                }
+            }
+
+            $shouldRestoreStock = ($nextStatus === 'cancelled'
+                && in_array($previousStatus, ['preparing', 'ready', 'shipping'], true))
+                || ($nextStatus === 'returned' && $previousStatus === 'returning');
+
+            if ($shouldRestoreStock) {
+                foreach ($order->cart as $cart) {
+                    $product = Product::query()->whereKey($cart->product_id)->lockForUpdate()->first();
+                    if ($product) {
+                        $product->stock += $cart->quantity;
+                        $product->save();
+                    }
                 }
             }
 
@@ -397,6 +418,10 @@ class OrderController extends Controller
 
             return $saved;
         });
+        if ($stockError) {
+            request()->session()->flash('error', $stockError);
+            return redirect()->back()->withInput();
+        }
         if($status){
             request()->session()->flash('success','Cập nhật đơn hàng thành công');
         }

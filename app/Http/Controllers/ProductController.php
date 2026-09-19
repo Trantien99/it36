@@ -91,6 +91,8 @@ class ProductController extends Controller
             'photo'=>'nullable|string|required_without:photo_file',
             'photo_file'=>'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'size'=>'nullable',
+            'color_code'=>'nullable|array',
+            'color_code.*'=>'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
             'stock'=>"required|numeric",
             'cat_id'=>'required|exists:categories,id',
             'brand_id'=>'nullable|exists:brands,id',
@@ -105,6 +107,8 @@ class ProductController extends Controller
         $data=$request->all();
 
         $data = $this->storeProductPhotoFile($request, $data);
+        $data['discount'] = $request->filled('discount') ? $request->input('discount') : 0;
+        $data['color_code'] = $this->normalizeColorCodes($request->input('color_code', []));
 
         $slug=Str::slug($request->title);
         $count=Product::where('slug',$slug)->count();
@@ -218,6 +222,8 @@ class ProductController extends Controller
             'photo'=>'nullable|string|required_without:photo_file',
             'photo_file'=>'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'size'=>'nullable',
+            'color_code'=>'nullable|array',
+            'color_code.*'=>'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
             'stock'=>"required|numeric",
             'cat_id'=>'required|exists:categories,id',
             'child_cat_id'=>'nullable|exists:categories,id',
@@ -232,6 +238,8 @@ class ProductController extends Controller
         $data=$request->all();
 
         $data = $this->storeProductPhotoFile($request, $data);
+        $data['discount'] = $request->filled('discount') ? $request->input('discount') : 0;
+        $data['color_code'] = $this->normalizeColorCodes($request->input('color_code', []));
 
         $data['is_featured']=$request->input('is_featured',0);
         $size=$request->input('size');
@@ -253,6 +261,17 @@ class ProductController extends Controller
         return redirect()->route('product.index');
     }
 
+
+    protected function normalizeColorCodes($colorCodes)
+    {
+        if (!is_array($colorCodes)) {
+            $colorCodes = [$colorCodes];
+        }
+
+        return implode(',', array_values(array_unique(array_filter(array_map(function ($colorCode) {
+            return strtoupper(trim((string) $colorCode));
+        }, $colorCodes)))));
+    }
     /**
      * Remove the specified resource from storage.
      *

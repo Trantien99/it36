@@ -151,6 +151,9 @@
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>
                                         <strong>{{ optional($item->product)->title ?: 'Sản phẩm đã xóa' }}</strong>
+                                        @if($item->color_code)
+                                            <div class="invoice-product-note">Mã màu: {{ $item->color_code }}</div>
+                                        @endif
                                         @if(optional($item->product)->summary)
                                             <div class="invoice-product-note">{{ strip_tags(optional($item->product)->summary) }}</div>
                                         @endif

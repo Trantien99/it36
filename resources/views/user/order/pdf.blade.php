@@ -118,7 +118,7 @@
         </tr>
       </thead>
       <tbody>
-      @foreach($order->cart_info as $cart)s
+      @foreach($order->cart_info as $cart)
       @php
         $product=DB::table('products')->select('title')->where('id',$cart->product_id)->get();
       @endphp
@@ -127,7 +127,11 @@
               @foreach($product as $pro)
                 {{$pro->title}}
               @endforeach
-            </span></td>
+            </span>
+            @if($cart->color_code)
+              <br><small>Mã màu: {{$cart->color_code}}</small>
+            @endif
+          </td>
           <td>x{{$cart->quantity}}</td>
           <td><span>{{number_format($cart->price,0)}}đ</span></td>
         </tr>

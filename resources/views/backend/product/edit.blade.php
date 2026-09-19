@@ -94,6 +94,25 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="color_code">Mã màu</label>
+          <div id="color-code-list">
+            @php $colorCodes = old('color_code', array_filter(explode(',', (string) $product->color_code))); @endphp
+            @foreach((count($colorCodes) ? $colorCodes : ['']) as $colorCode)
+              <div class="input-group mb-2 color-code-row">
+                <input type="text" name="color_code[]" placeholder="#000000" value="{{ $colorCode }}" class="form-control" pattern="^#[0-9A-Fa-f]{6}$" maxlength="7">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-outline-danger remove-color-code">Xóa</button>
+                </div>
+              </div>
+            @endforeach
+          </div>
+          <button type="button" id="add-color-code" class="btn btn-sm btn-outline-primary">Thêm mã màu</button>
+          <small class="form-text text-muted">Mỗi mã màu phải có dạng HEX, ví dụ: #000000.</small>
+          @error('color_code')
+          <span class="text-danger">{{$message}}</span>
+          @enderror
+        </div>
+        <div class="form-group">
           <label for="brand_id">Thương hiệu</label>
           <select name="brand_id" class="form-control">
               <option value="">--Lựa chọn thương hiệu--</option>
@@ -175,6 +194,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
+    $('#add-color-code').on('click', function () {
+      $('#color-code-list').append('<div class="input-group mb-2 color-code-row"><input type="text" name="color_code[]" placeholder="#000000" class="form-control" pattern="^#[0-9A-Fa-f]{6}$" maxlength="7"><div class="input-group-append"><button type="button" class="btn btn-outline-danger remove-color-code">Xóa</button></div></div>');
+    });
+    $(document).on('click', '.remove-color-code', function () {
+      if ($('.color-code-row').length > 1) $(this).closest('.color-code-row').remove();
+      else $(this).closest('.color-code-row').find('input').val('');
+    });
+
     $('#lfm').filemanager('image', {prefix: $('#lfm').data('prefix')});
 
     $('#photo_file').on('change', function () {
