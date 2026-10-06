@@ -92,6 +92,31 @@ class HomeController extends Controller
             ->findOrFail($id);
         return view('user.order.show')->with('order',$order);
     }
+
+    public function confirmOrderReceived($id)
+    {
+        $order = Order::with('statusHistory')
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        $hasDeliverySuccess = in_array($order->status, ['delivery_success', 'completed'], true)
+            || ($order->status === 'ended' && $order->statusHistory->contains(function ($history) {
+                return in_array($history->status, ['delivery_success', 'completed'], true);
+            }));
+
+        if (!$hasDeliverySuccess) {
+            return redirect()->route('user.order.show', $order->id)
+                ->with('error', 'Bạn chỉ có thể xác nhận sau khi đơn được giao thành công.');
+        }
+
+        if (!$order->customer_received_at) {
+            $order->customer_received_at = now();
+            $order->save();
+        }
+
+        return redirect()->route('user.order.show', $order->id)
+            ->with('success', 'Đã ghi nhận xác nhận nhận hàng của bạn.');
+    }
     // Product Review
     public function productReviewIndex(){
         $reviews=ProductReview::getAllUserReview();

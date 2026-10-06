@@ -206,6 +206,19 @@
                     Đơn hàng vẫn đang được xử lý. Shop sẽ cập nhật tiếp khi trạng thái thay đổi.
                 </div>
             @endif
+            @if ($order->customer_received_at)
+                <div class="tracking-alert tracking-alert-success">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Bạn đã xác nhận nhận hàng lúc {{ $order->customer_received_at->format('H:i d/m/Y') }}.
+                </div>
+            @elseif ($flowStatusKey === 'delivery_success')
+                <form action="{{ route('user.order.confirm-received', $order->id) }}" method="POST" class="mt-3">
+                    @csrf
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check mr-1"></i> Xác nhận đã nhận hàng
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 

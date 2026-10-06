@@ -64,7 +64,9 @@ class MomoController extends Controller
             return redirect()->route('user.order.show', $order->id);
         }
 
-        if (!is_array($responseData) || (int) data_get($responseData, 'resultCode', -1) !== 0 || empty($responseData['payUrl'])) {
+        $paymentUrl = $this->resolvePaymentRedirectUrl($responseData);
+
+        if (!is_array($responseData) || (int) data_get($responseData, 'resultCode', -1) !== 0 || empty($paymentUrl)) {
             Log::warning('MoMo create payment returned unexpected response', [
                 'order_id' => $order->id,
                 'response' => $responseData,
@@ -75,7 +77,20 @@ class MomoController extends Controller
             return redirect()->route('user.order.show', $order->id);
         }
 
-        return redirect()->away($responseData['payUrl']);
+        return redirect()->away($paymentUrl);
+    }
+
+    public function resolvePaymentRedirectUrl(array $responseData): ?string
+    {
+        foreach (['payUrl', 'qrCodeUrl', 'deeplink', 'deepLink'] as $field) {
+            $value = trim((string) data_get($responseData, $field, ''));
+
+            if ($value !== '' && filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     public function returnUrl(Request $request)

@@ -26,6 +26,15 @@ class Order extends Model
         'refunded' => 'Đã hoàn tiền',
     ];
 
+    public const SHIPPING_PROVIDERS = [
+        'ghn' => 'Giao Hàng Nhanh (GHN)',
+        'ghtk' => 'Giao Hàng Tiết Kiệm (GHTK)',
+        'viettel_post' => 'Viettel Post',
+        'jt_express' => 'J&T Express',
+        'vnpost' => 'Vietnam Post (VNPost)',
+        'shop_delivery' => 'Shop tự giao',
+    ];
+
     public const ORDER_STATUS_TRANSITIONS = [
         'pending_confirmation' => ['pending_confirmation', 'preparing', 'cancelled'],
         'preparing' => ['preparing', 'ready', 'cancelled'],
@@ -42,7 +51,9 @@ class Order extends Model
 
     public const STOCK_DECREMENT_STATUSES = ['preparing'];
 
-    protected $fillable=['user_id','order_number','sub_total','quantity','delivery_charge','status','total_amount','first_name','last_name','country','post_code','address1','address2','phone','email','payment_method','payment_status','shipping_id','coupon'];
+    protected $fillable=['user_id','order_number','sub_total','quantity','delivery_charge','status','total_amount','first_name','last_name','country','post_code','address1','address2','phone','email','payment_method','payment_status','shipping_id','shipping_provider','coupon','customer_received_at'];
+
+    protected $dates = ['customer_received_at'];
 
     public function cart_info(){
         return $this->hasMany('App\Models\Cart','order_id','id');

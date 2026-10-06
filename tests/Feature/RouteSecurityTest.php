@@ -19,6 +19,15 @@ class RouteSecurityTest extends TestCase
         ])->assertRedirect(route('login.form'));
     }
 
+    public function testGuestCannotAccessInventoryReceiptsOrConfirmOrderReceipt()
+    {
+        $this->get(route('inventory-receipts.index'))
+            ->assertRedirect(route('login.form'));
+
+        $this->post(route('user.order.confirm-received', 1))
+            ->assertRedirect(route('login'));
+    }
+
     public function testGuestIsRedirectedWhenPostingCartAndWishlistMutations()
     {
         $this->post(route('add-to-cart', 'demo-product'))

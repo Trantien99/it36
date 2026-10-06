@@ -107,6 +107,7 @@
             <h6 class="collapse-header">Tùy chọn sản phẩm:</h6>
             <a class="collapse-item" href="{{ route('product.index') }}">Danh sách sản phẩm</a>
             <a class="collapse-item" href="{{ route('product.create') }}">Thêm sản phẩm</a>
+            <a class="collapse-item" href="{{ route('inventory-receipts.index') }}">Phiếu nhập kho</a>
           </div>
         </div>
     </li>

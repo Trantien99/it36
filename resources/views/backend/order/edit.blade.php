@@ -35,6 +35,7 @@
 
     $currentStatusKey = trim((string) $order->status);
     $selectedStatus = old('status', $currentStatusKey);
+    $selectedShippingProvider = old('shipping_provider', $order->shipping_provider);
     $currentStatus = $statusMeta[$currentStatusKey] ?? ['label' => ucfirst($currentStatusKey), 'icon' => 'fas fa-question-circle', 'tone' => 'tone-muted', 'hint' => ''];
     $availableStatuses = $allowedStatuses[$currentStatusKey] ?? [$currentStatusKey];
     $reachedStatuses = $order->statusHistory->pluck('status')->unique()->values()->all();
@@ -167,6 +168,27 @@
                             </div>
                         @endif
 
+                        <div class="form-group mb-4" id="shipping-provider-group" style="{{ in_array($selectedStatus, ['ready', 'shipping'], true) || in_array($currentStatusKey, ['ready', 'shipping'], true) ? '' : 'display: none;' }}">
+                            <label class="edit-order-label" for="shipping_provider">Đơn vị vận chuyển</label>
+                            @if ($order->shipping_provider)
+                                <div class="form-control-plaintext font-weight-bold">
+                                    {{ $shippingProviders[$order->shipping_provider] ?? $order->shipping_provider }}
+                                </div>
+                                <small class="form-text text-muted">Đơn vị vận chuyển đã được chốt và không thể thay đổi.</small>
+                            @else
+                                <select class="form-control" id="shipping_provider" name="shipping_provider">
+                                    <option value="">-- Chọn đơn vị vận chuyển --</option>
+                                    @foreach ($shippingProviders as $key => $label)
+                                        <option value="{{ $key }}" {{ $selectedShippingProvider === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">Bắt buộc chọn trước khi lưu trạng thái “Đơn hàng đã sẵn sàng” hoặc “Đang giao hàng”.</small>
+                            @endif
+                            @error('shipping_provider')
+                                <div class="text-danger small mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="form-group mb-4">
                             <div class="edit-order-label-row">
                                 <label class="edit-order-label" for="payment_status">Trạng thái thanh toán</label>
@@ -252,6 +274,8 @@
                             <li><strong>Điện thoại:</strong> {{ $order->phone ?: 'Chưa cập nhật' }}</li>
                             <li><strong>Địa chỉ:</strong> {{ $customerAddress ?: 'Chưa cập nhật địa chỉ giao hàng' }}</li>
                             <li><strong>Vận chuyển:</strong> {{ $shippingLabel }}</li>
+                            <li><strong>Đơn vị vận chuyển:</strong> {{ $shippingProviders[$order->shipping_provider] ?? 'Chưa chọn' }}</li>
+                            <li><strong>Khách xác nhận nhận hàng:</strong> {{ $order->customer_received_at ? $order->customer_received_at->format('d/m/Y H:i') : 'Chưa xác nhận' }}</li>
                         </ul>
                     </div>
                 </div>
@@ -289,7 +313,8 @@
         statusChoice.addEventListener('click', function () {
             var form = statusChoice.closest('form');
             var hiddenStatus = form.querySelector('input[name="status"]');
-            var currentStatus = form.querySelector('.edit-order-reset-status').dataset.status;
+            var resetButton = form.querySelector('.edit-order-reset-status');
+            var currentStatus = resetButton ? resetButton.dataset.status : hiddenStatus.value;
 
             if (hiddenStatus.value === statusChoice.value) {
                 statusChoice.checked = false;
@@ -297,6 +322,8 @@
             } else {
                 hiddenStatus.value = statusChoice.value;
             }
+
+            updateShippingProviderVisibility(form);
         });
     });
 
@@ -309,8 +336,18 @@
                 statusChoice.checked = false;
             });
             form.querySelector('input[name="status"]').value = currentStatus;
+            updateShippingProviderVisibility(form);
         });
     });
+
+    function updateShippingProviderVisibility(form) {
+        var status = form.querySelector('input[name="status"]').value;
+        var providerGroup = form.querySelector('#shipping-provider-group');
+
+        if (providerGroup) {
+            providerGroup.style.display = ['ready', 'shipping'].indexOf(status) !== -1 ? '' : 'none';
+        }
+    }
 
     document.querySelectorAll('.edit-order-reset-payment').forEach(function (resetButton) {
         resetButton.addEventListener('click', function () {

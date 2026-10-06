@@ -309,7 +309,10 @@ class OrderController extends Controller
     public function edit($id)
     {
         $order = Order::with(['shipping', 'cart.product', 'statusHistory'])->findOrFail($id);
-        return view('backend.order.edit')->with('order', $order);
+        return view('backend.order.edit', [
+            'order' => $order,
+            'shippingProviders' => Order::SHIPPING_PROVIDERS,
+        ]);
     }
 
     /**
@@ -323,11 +326,27 @@ class OrderController extends Controller
     {
         $order = Order::with('cart.product')->findOrFail($id);
         $allowedStatuses = array_keys(Order::ORDER_STATUS_LABELS);
-        $this->validate($request,[
+        $validationRules = [
             'status'=>'required|in:'.implode(',', $allowedStatuses),
             'payment_status'=>'nullable|in:'.implode(',', array_keys(Order::PAYMENT_STATUS_LABELS)),
-        ]);
-        $data = $request->only(['status', 'payment_status']);
+        ];
+
+        if (!$order->shipping_provider) {
+            $validationRules['shipping_provider'] = 'required_if:status,ready,shipping|nullable|in:'.implode(',', array_keys(Order::SHIPPING_PROVIDERS));
+        }
+
+        $this->validate($request, $validationRules);
+
+        if ($order->shipping_provider
+            && $request->filled('shipping_provider')
+            && $request->input('shipping_provider') !== $order->shipping_provider) {
+            request()->session()->flash('error', 'Đơn vị vận chuyển đã được chốt và không thể thay đổi.');
+            return redirect()->back()->withInput();
+        }
+        $data = $request->only(['status', 'payment_status', 'shipping_provider']);
+        if ($order->shipping_provider) {
+            unset($data['shipping_provider']);
+        }
         $previousStatus = trim((string) $order->status);
         $nextStatus = trim((string) $request->status);
 

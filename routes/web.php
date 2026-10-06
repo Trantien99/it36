@@ -139,6 +139,7 @@ Route::group(['prefix'=>'/admin','middleware'=>['admin']],function(){
 
     // Order
     Route::resource('/order','OrderController');
+    Route::resource('/inventory-receipts', 'InventoryReceiptController')->only(['index', 'create', 'store', 'show'])->names('inventory-receipts');
     // Shipping
     Route::resource('/shipping','ShippingController');
     // Coupon
@@ -174,6 +175,7 @@ Route::group(['prefix'=>'/user','middleware'=>['user']],function(){
     //  Order
     Route::get('/order',"HomeController@orderIndex")->name('user.order.index');
     Route::get('/order/show/{id}',"HomeController@orderShow")->name('user.order.show');
+    Route::post('/order/{id}/confirm-received', 'HomeController@confirmOrderReceived')->name('user.order.confirm-received');
     Route::delete('/order/delete/{id}','HomeController@userOrderDelete')->name('user.order.delete');
     // Product Review
     Route::get('/user-review','HomeController@productReviewIndex')->name('user.productreview.index');
