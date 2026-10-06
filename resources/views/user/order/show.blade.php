@@ -206,6 +206,19 @@
                     Đơn hàng vẫn đang được xử lý. Shop sẽ cập nhật tiếp khi trạng thái thay đổi.
                 </div>
             @endif
+            @if ($order->shipping_provider || $order->tracking_number || $order->tracking_url)
+                <div class="tracking-alert tracking-alert-info">
+                    <i class="fas fa-truck mr-2"></i>
+                    <strong>Vận đơn:</strong>
+                    {{ \App\Models\Order::SHIPPING_PROVIDERS[$order->shipping_provider] ?? $order->shipping_provider ?? 'Đang cập nhật' }}
+                    @if ($order->tracking_number)
+                        <span class="ml-2"><strong>Mã:</strong> {{ $order->tracking_number }}</span>
+                    @endif
+                    @if ($order->tracking_url)
+                        <a class="ml-2" href="{{ $order->tracking_url }}" target="_blank" rel="noopener noreferrer">Tra cứu vận đơn</a>
+                    @endif
+                </div>
+            @endif
             @if ($order->customer_received_at)
                 <div class="tracking-alert tracking-alert-success">
                     <i class="fas fa-check-circle mr-2"></i>

@@ -146,7 +146,11 @@ class CartController extends Controller
         }
 
         $selectedColorCode = strtoupper(trim((string) $selectedColorCode));
-        if ($selectedColorCode === '' || !in_array($selectedColorCode, array_map('strtoupper', $colorCodes), true)) {
+        if ($selectedColorCode === '') {
+            return strtoupper($colorCodes[0]);
+        }
+
+        if (!in_array($selectedColorCode, array_map('strtoupper', $colorCodes), true)) {
             return false;
         }
 

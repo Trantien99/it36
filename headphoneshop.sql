@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 20, 2026 lúc 10:52 AM
+-- Thời gian đã tạo: Th10 06, 2026 lúc 05:35 PM
 -- Phiên bản máy phục vụ: 10.4.22-MariaDB
 -- Phiên bản PHP: 7.4.27
 
@@ -81,6 +81,7 @@ INSERT INTO `brands` (`id`, `title`, `slug`, `status`, `created_at`, `updated_at
 CREATE TABLE `carts` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `product_id` bigint(20) UNSIGNED NOT NULL,
+  `color_code` varchar(7) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `order_id` bigint(20) UNSIGNED DEFAULT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `price` double(10,2) NOT NULL,
@@ -95,13 +96,30 @@ CREATE TABLE `carts` (
 -- Đang đổ dữ liệu cho bảng `carts`
 --
 
-INSERT INTO `carts` (`id`, `product_id`, `order_id`, `user_id`, `price`, `status`, `quantity`, `amount`, `created_at`, `updated_at`) VALUES
-(36, 26, 19, 41, 1200000.00, 'new', 1, 1200000.00, '2025-03-27 06:16:26', '2025-03-27 06:23:38'),
-(37, 26, 20, 42, 1200000.00, 'new', 1, 1200000.00, '2025-03-27 07:24:57', '2025-03-27 07:25:48'),
-(38, 26, 21, 42, 1200000.00, 'new', 1, 1200000.00, '2026-03-15 06:58:07', '2026-03-15 07:00:00'),
-(39, 27, 22, 43, 1823600.00, 'new', 1, 1880000.00, '2026-03-16 07:41:34', '2026-03-16 07:42:43'),
-(40, 24, 23, 43, 2511000.00, 'new', 1, 2790000.00, '2026-03-18 23:19:06', '2026-03-18 23:28:16'),
-(41, 27, 24, 44, 1823600.00, 'new', 1, 1880000.00, '2026-03-20 02:14:19', '2026-03-20 02:16:05');
+INSERT INTO `carts` (`id`, `product_id`, `color_code`, `order_id`, `user_id`, `price`, `status`, `quantity`, `amount`, `created_at`, `updated_at`) VALUES
+(36, 26, NULL, 19, 41, 1200000.00, 'new', 1, 1200000.00, '2025-03-27 06:16:26', '2025-03-27 06:23:38'),
+(37, 26, NULL, 20, 42, 1200000.00, 'new', 1, 1200000.00, '2025-03-27 07:24:57', '2025-03-27 07:25:48'),
+(38, 26, NULL, 21, 42, 1200000.00, 'new', 1, 1200000.00, '2026-03-15 06:58:07', '2026-03-15 07:00:00'),
+(39, 27, NULL, 22, 43, 1823600.00, 'new', 1, 1880000.00, '2026-03-16 07:41:34', '2026-03-16 07:42:43'),
+(40, 24, NULL, 23, 43, 2511000.00, 'new', 1, 2790000.00, '2026-03-18 23:19:06', '2026-03-18 23:28:16'),
+(41, 27, NULL, 24, 44, 1823600.00, 'new', 1, 1880000.00, '2026-03-20 02:14:19', '2026-03-20 02:16:05'),
+(42, 21, NULL, 25, 45, 3059700.00, 'new', 1, 3059700.00, '2026-09-12 20:01:02', '2026-09-12 20:02:31'),
+(43, 22, NULL, 25, 45, 845500.00, 'new', 1, 845500.00, '2026-09-12 20:01:10', '2026-09-12 20:02:31'),
+(44, 21, NULL, 26, 45, 3059700.00, 'new', 1, 3059700.00, '2026-09-12 20:06:36', '2026-09-12 20:09:54'),
+(45, 26, NULL, 27, 45, 1200000.00, 'new', 4, 4800000.00, '2026-09-13 09:02:21', '2026-09-13 09:17:00'),
+(46, 27, NULL, 28, 45, 1767200.00, 'new', 2, 3534400.00, '2026-09-13 09:22:10', '2026-09-13 09:22:48'),
+(47, 26, NULL, 29, 45, 1200000.00, 'new', 2, 2400000.00, '2026-09-13 09:25:37', '2026-09-13 10:26:57'),
+(48, 26, NULL, 30, 45, 1200000.00, 'new', 6, 7200000.00, '2026-09-14 08:57:59', '2026-09-14 09:23:51'),
+(49, 26, NULL, 31, 45, 1200000.00, 'new', 5, 6000000.00, '2026-09-14 09:28:45', '2026-09-14 09:29:41'),
+(50, 26, NULL, 32, 45, 1200000.00, 'new', 11, 13200000.00, '2026-09-14 09:30:24', '2026-09-14 22:36:01'),
+(51, 22, NULL, 33, 45, 845500.00, 'new', 1, 845500.00, '2026-09-14 22:36:59', '2026-09-15 01:43:53'),
+(52, 26, NULL, 33, 45, 1200000.00, 'new', 1, 1200000.00, '2026-09-14 22:42:53', '2026-09-15 01:43:53'),
+(53, 27, NULL, 34, 45, 1767200.00, 'new', 1, 1767200.00, '2026-09-15 01:44:14', '2026-09-15 09:34:02'),
+(54, 30, NULL, 34, 45, 270000.00, 'new', 1, 270000.00, '2026-09-15 09:31:47', '2026-09-15 09:34:02'),
+(55, 27, NULL, 35, 45, 1767200.00, 'new', 4, 7068800.00, '2026-09-18 07:43:42', '2026-09-18 07:44:30'),
+(56, 30, NULL, 36, 45, 270000.00, 'new', 1, 270000.00, '2026-09-18 22:07:25', '2026-09-18 22:56:13'),
+(57, 31, '#000000', 36, 45, 1000000.00, 'new', 1, 1000000.00, '2026-09-18 22:55:51', '2026-09-18 22:56:13'),
+(59, 24, NULL, 38, 45, 2511000.00, 'new', 1, 2511000.00, '2026-10-06 08:00:43', '2026-10-06 08:01:10');
 
 -- --------------------------------------------------------
 
@@ -183,7 +201,7 @@ CREATE TABLE `coupons` (
 --
 
 INSERT INTO `coupons` (`id`, `code`, `type`, `value`, `status`, `created_at`, `updated_at`) VALUES
-(6, 'AUDIO10', 'percent', '10.00', 'active', '2026-03-15 09:00:00', '2026-03-15 09:00:00'),
+(6, 'AUDIO10', 'percent', '10.00', 'active', '2026-03-15 09:00:00', '2026-09-14 22:27:50'),
 (7, 'FREESHIP', 'fixed', '30000.00', 'active', '2026-03-15 09:05:00', '2026-03-15 09:05:00');
 
 -- --------------------------------------------------------
@@ -200,6 +218,58 @@ CREATE TABLE `failed_jobs` (
   `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `inventory_receipts`
+--
+
+CREATE TABLE `inventory_receipts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `receipt_number` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `supplier_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_quantity` int(10) UNSIGNED NOT NULL,
+  `received_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `inventory_receipts`
+--
+
+INSERT INTO `inventory_receipts` (`id`, `receipt_number`, `supplier_name`, `reference_number`, `notes`, `total_quantity`, `received_by`, `created_at`, `updated_at`) VALUES
+(1, 'GR-20261006143046-GWQTY', NULL, NULL, NULL, 60, 33, '2026-10-06 07:30:46', '2026-10-06 07:30:46'),
+(2, 'GR-20261006143134-HW3PX', NULL, NULL, NULL, 100, 33, '2026-10-06 07:31:34', '2026-10-06 07:31:34');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `inventory_receipt_items`
+--
+
+CREATE TABLE `inventory_receipt_items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `inventory_receipt_id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `product_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `quantity` int(10) UNSIGNED NOT NULL,
+  `unit_cost` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `line_total` decimal(14,2) NOT NULL DEFAULT 0.00,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `inventory_receipt_items`
+--
+
+INSERT INTO `inventory_receipt_items` (`id`, `inventory_receipt_id`, `product_id`, `product_name`, `quantity`, `unit_cost`, `line_total`, `created_at`, `updated_at`) VALUES
+(1, 1, 27, 'Bộ DAC USB-C và hộp đựng tai nghe cao cấp', 60, '8000000.00', '480000000.00', '2026-10-06 07:30:46', '2026-10-06 07:30:46'),
+(2, 2, 27, 'Bộ DAC USB-C và hộp đựng tai nghe cao cấp', 100, '600000.00', '60000000.00', '2026-10-06 07:31:34', '2026-10-06 07:31:34');
 
 -- --------------------------------------------------------
 
@@ -235,7 +305,6 @@ CREATE TABLE `migrations` (
 --
 -- Đang đổ dữ liệu cho bảng `migrations`
 --
-
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '2014_10_12_000000_create_users_table', 1),
 (2, '2014_10_12_100000_create_password_resets_table', 1),
@@ -260,7 +329,17 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (21, '2026_03_15_200000_create_chatbot_faqs_table', 2),
 (22, '2026_03_15_203000_refresh_chatbot_faqs_content', 3),
 (23, '2026_03_16_000000_add_momo_to_orders_payment_method_enum', 4),
-(24, '2026_03_19_000100_mark_delivered_orders_as_paid', 5);
+(24, '2026_03_19_000100_mark_delivered_orders_as_paid', 5),
+(25, '2026_09_15_000000_add_checkout_profile_fields_to_users_table', 6),
+(26, '2026_09_15_010000_expand_order_and_payment_statuses', 7),
+(27, '2026_09_15_020000_migrate_legacy_order_statuses', 8),
+(28, '2026_09_15_030000_create_order_status_histories_table', 9),
+(29, '2026_09_19_000000_add_color_code_to_products_table', 10),
+(30, '2026_09_19_010000_add_color_code_to_carts_table', 11),
+(31, '2026_10_06_000000_create_inventory_receipts_tables', 12),
+(32, '2026_10_06_010000_add_customer_received_at_to_orders_table', 12),
+(33, '2026_10_06_020000_add_shipping_provider_to_orders_table', 13),
+(34, '2026_10_06_030000_add_tracking_fields_to_orders_table', 14);
 
 -- --------------------------------------------------------
 
@@ -282,19 +361,26 @@ CREATE TABLE `notifications` (
 --
 -- Đang đổ dữ liệu cho bảng `notifications`
 --
-
 INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
+('0f2db6b9-5849-4841-bbb1-49da77297c10', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/33\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-15 01:43:53', '2026-09-15 01:43:53'),
+
 ('0fb0a4f8-40f1-4295-a4af-6c9828c9200e', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u00e1nh gi\\u00e1 s\\u1ea3n ph\\u1ea9m m\\u1edbi!\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/san-pham\\/tai-nghe-bluetooth-soundpeats-air4-lite\",\"fas\":\"fa-star\"}', NULL, '2026-03-18 23:31:17', '2026-03-18 23:31:17'),
-('14713b40-f2cf-4eba-8d6f-7c479ce258ed', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Có đánh giá sản phẩm mới!\",\"actionURL\":\"http://127.0.0.1:8000/product-detail/bo-dac-usb-c-va-hop-dung-tai-nghe-cao-cap\",\"fas\":\"fa-star\"}', NULL, '2026-03-15 09:20:00', '2026-03-15 09:20:00'),
-('2f1b4112-9b01-4591-9d6f-939a3c0eb868', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Có đơn hàng mới\",\"actionURL\":\"http://127.0.0.1:8000/admin/order/20\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-15 09:25:00', '2026-03-15 09:25:00'),
-('3d78f59e-babe-4b1e-b3c9-1b3bfa4cbf17', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Có đơn hàng mới\",\"actionURL\":\"http://127.0.0.1:8000/admin/order/19\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-15 09:26:00', '2026-03-15 09:26:00'),
-('615f53cc-61ae-477b-83d5-59bf00562213', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Bình luận mới được tạo\",\"actionURL\":\"http://127.0.0.1:8000/blog-detail/meo-bao-quan-tai-nghe-ben-pin-ben-dem-tai\",\"fas\":\"fas fa-comment\"}', NULL, '2026-03-15 09:27:00', '2026-03-15 09:27:00'),
+('134673b9-0996-4ec3-a21f-21fb006894cb', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/31\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-14 09:29:41', '2026-09-14 09:29:41'),
+('194868cc-503f-4c3e-bfc8-66343a34d2a0', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/32\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-14 22:36:00', '2026-09-14 22:36:00'),
+('1b3cc7f4-7247-4a2a-8116-abe42257f538', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/26\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-12 20:09:54', '2026-09-12 20:09:54'),
+('42ab6168-60b1-409c-97d9-7ad5c4718e27', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/30\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-14 09:23:51', '2026-09-14 09:23:51'),
+('434cd8be-4224-47e5-868b-00cfb58da7c5', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/35\",\"fas\":\"fa-file-alt\"}', '2026-09-18 07:45:03', '2026-09-18 07:44:29', '2026-09-18 07:45:03'),
+('4441821a-0077-4cf1-a476-2a730251e259', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/27\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-13 09:16:58', '2026-09-13 09:16:58'),
+('65d7a812-bd61-42f0-9d6e-ca3e3b75ed9b', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/28\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-13 09:22:48', '2026-09-13 09:22:48'),
+('6afc3179-ca81-4025-9532-2214e7c9a738', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/34\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-15 09:34:02', '2026-09-15 09:34:02'),
 ('729ecec3-aec0-4126-a7da-e35bf239b2c7', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/22\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-16 07:42:42', '2026-03-16 07:42:42'),
+('76cf2dc5-3791-430f-92c8-ad58960902c7', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/29\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-13 10:26:57', '2026-09-13 10:26:57'),
 ('7baeec7a-cf65-4b80-a494-dd7b0194203e', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/24\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-20 02:16:04', '2026-03-20 02:16:04'),
+('827b3b06-d7b4-4002-ab17-d089d1f79a40', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/25\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-12 20:02:31', '2026-09-12 20:02:31'),
+('868106d1-793b-48d1-b046-511f6834c21b', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/36\",\"fas\":\"fa-file-alt\"}', NULL, '2026-09-18 22:56:13', '2026-09-18 22:56:13'),
 ('97007b38-12d1-4c96-85ea-64bc41e9ec5a', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/23\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-18 23:28:15', '2026-03-18 23:28:15'),
-('a6ec4c36-877c-43f1-bc86-049323812c0d', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Có đánh giá sản phẩm mới!\",\"actionURL\":\"http://127.0.0.1:8000/product-detail/tai-nghe-true-wireless-sennheiser-cx-plus-se\",\"fas\":\"fa-star\"}', NULL, '2026-03-15 09:28:00', '2026-03-15 09:28:00'),
+('c3e55e76-31df-4ab3-8100-912cf28d81c2', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/38\",\"fas\":\"fa-file-alt\"}', NULL, '2026-10-06 08:01:10', '2026-10-06 08:01:10'),
 ('d2e8496b-c3ff-4ecc-a5ee-7a2e898df178', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"B\\u00ecnh lu\\u1eadn m\\u1edbi \\u0111\\u01b0\\u1ee3c t\\u1ea1o\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/bai-viet\\/tai-nghe-true-wireless-nao-hop-cho-nguoi-chay-bo\",\"fas\":\"fas fa-comment\"}', NULL, '2026-03-18 23:32:49', '2026-03-18 23:32:49'),
-('e7c1d142-5f7f-4e77-bed9-fe416c04ec2a', 'AppNotificationsStatusNotification', 'AppUser', 33, '{\"title\":\"Bình luận mới được tạo\",\"actionURL\":\"http://127.0.0.1:8000/blog-detail/meo-bao-quan-tai-nghe-ben-pin-ben-dem-tai\",\"fas\":\"fas fa-comment\"}', NULL, '2026-03-15 09:29:00', '2026-03-15 09:29:00'),
 ('f388da47-0c68-4cf2-8dfa-e9b2fec72fea', 'App\\Notifications\\StatusNotification', 'App\\User', 33, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"actionURL\":\"http:\\/\\/127.0.0.1:8000\\/admin\\/order\\/21\",\"fas\":\"fa-file-alt\"}', NULL, '2026-03-15 07:00:00', '2026-03-15 07:00:00');
 
 -- --------------------------------------------------------
@@ -309,12 +395,16 @@ CREATE TABLE `orders` (
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `sub_total` double(10,2) NOT NULL,
   `shipping_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `shipping_provider` varchar(191) DEFAULT NULL,
+  `tracking_number` varchar(191) DEFAULT NULL,
+  `tracking_url` varchar(2048) DEFAULT NULL,
   `coupon` double(10,2) DEFAULT NULL,
   `total_amount` double(10,2) NOT NULL,
   `quantity` int(11) NOT NULL,
   `payment_method` enum('cod','paypal','momo') NOT NULL DEFAULT 'cod',
-  `payment_status` enum('paid','unpaid') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
-  `status` enum('new','process','delivered','cancel') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'new',
+  `payment_status` enum('pending','unpaid','paid','refunded') NOT NULL DEFAULT 'unpaid',
+  `customer_received_at` timestamp NULL DEFAULT NULL,
+  `status` enum('pending_confirmation','preparing','ready','shipping','delivery_failed','returning','returned','delivery_success','completed','cancelled','ended') NOT NULL DEFAULT 'pending_confirmation',
   `first_name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -331,13 +421,102 @@ CREATE TABLE `orders` (
 -- Đang đổ dữ liệu cho bảng `orders`
 --
 
-INSERT INTO `orders` (`id`, `order_number`, `user_id`, `sub_total`, `shipping_id`, `coupon`, `total_amount`, `quantity`, `payment_method`, `payment_status`, `status`, `first_name`, `last_name`, `email`, `phone`, `country`, `post_code`, `address1`, `address2`, `created_at`, `updated_at`) VALUES
-(19, 'ORD-1XZT3W6ZL6', 41, 1200000.00, 4, NULL, 1235000.00, 1, 'cod', 'paid', 'delivered', 'huyen', 'thu', 'huyen.lethi.05@gmail.com', '1247763378', 'VN', '100000', 'ha noi', NULL, '2025-03-27 06:23:38', '2025-03-27 06:33:23'),
-(20, 'ORD-RP96RYVC7G', 42, 1200000.00, 2, NULL, 1230000.00, 1, 'cod', 'paid', 'delivered', 'Điều', 'Mạnh', 'manhdieu@gmail.com', '098765432', 'VN', '100000', '12 Ha noi', 'Hồ Hoàn Kiếm, Hàng Trống, Hoàn Kiếm, Hà Nội', '2025-03-27 07:25:48', '2025-03-27 07:31:16'),
-(21, 'ORD-NDHQJLPXCN', 42, 1200000.00, 1, NULL, 1240000.00, 1, 'cod', 'paid', 'delivered', 'Mạnh Điều', 'Trần', 'manhdieu@gmail.com', '0522359440', 'VN', '10000', '33 Hà Nội', '33 Hà Nội', '2026-03-15 06:59:58', '2026-03-15 07:05:32'),
-(22, 'ORD-C6WQG2LWPE', 43, 1880000.00, 1, NULL, 1920000.00, 1, 'cod', 'paid', 'delivered', 'Cảnh', 'Trần', 'canh@gmail.com', '098765432', 'VN', '1000000', '31 Hà Nội', '31 Hà Nội', '2026-03-16 07:42:39', '2026-03-19 00:01:00'),
-(23, 'ORD-L15UZGXXR1', 43, 2790000.00, 1, NULL, 2830000.00, 1, 'momo', 'unpaid', 'new', 'Cảnh', 'Trần', 'canh@gmail.com', '098765432', 'VN', '1000000', '31 Hà Nội', '31 Hà Nội', '2026-03-18 23:28:12', '2026-03-18 23:28:12'),
-(24, 'ORD-9KYLUIQHSO', 44, 1880000.00, NULL, NULL, 1880000.00, 1, 'momo', 'paid', 'delivered', 'Thu Hồng', 'Trần', 'hong@gmail.com', '098765432', 'VN', '100000', '78 Hà Nội', '78 Hà Nội', '2026-03-20 02:16:01', '2026-03-20 02:29:11');
+INSERT INTO `orders` (`id`, `order_number`, `user_id`, `sub_total`, `shipping_id`, `shipping_provider`, `tracking_number`, `tracking_url`, `coupon`, `total_amount`, `quantity`, `payment_method`, `payment_status`, `customer_received_at`, `status`, `first_name`, `last_name`, `email`, `phone`, `country`, `post_code`, `address1`, `address2`, `created_at`, `updated_at`) VALUES
+(19, 'ORD-1XZT3W6ZL6', 41, 1200000.00, 4, NULL, NULL, NULL, NULL, 1235000.00, 1, 'cod', 'paid', NULL, 'completed', 'huyen', 'thu', 'huyen.lethi.05@gmail.com', '1247763378', 'VN', '100000', 'ha noi', NULL, '2025-03-27 06:23:38', '2025-03-27 06:33:23'),
+(20, 'ORD-RP96RYVC7G', 42, 1200000.00, 2, NULL, NULL, NULL, NULL, 1230000.00, 1, 'cod', 'paid', NULL, 'completed', 'Điều', 'Mạnh', 'manhdieu@gmail.com', '098765432', 'VN', '100000', '12 Ha noi', 'Hồ Hoàn Kiếm, Hàng Trống, Hoàn Kiếm, Hà Nội', '2025-03-27 07:25:48', '2025-03-27 07:31:16'),
+(21, 'ORD-NDHQJLPXCN', 42, 1200000.00, 1, NULL, NULL, NULL, NULL, 1240000.00, 1, 'cod', 'paid', NULL, 'completed', 'Mạnh Điều', 'Trần', 'manhdieu@gmail.com', '0522359440', 'VN', '10000', '33 Hà Nội', '33 Hà Nội', '2026-03-15 06:59:58', '2026-03-15 07:05:32'),
+(22, 'ORD-C6WQG2LWPE', 43, 1880000.00, 1, NULL, NULL, NULL, NULL, 1920000.00, 1, 'cod', 'paid', NULL, 'completed', 'Cảnh', 'Trần', 'canh@gmail.com', '098765432', 'VN', '1000000', '31 Hà Nội', '31 Hà Nội', '2026-03-16 07:42:39', '2026-03-19 00:01:00'),
+(23, 'ORD-L15UZGXXR1', 43, 2790000.00, 1, NULL, NULL, NULL, NULL, 2830000.00, 1, 'momo', 'unpaid', NULL, 'pending_confirmation', 'Cảnh', 'Trần', 'canh@gmail.com', '098765432', 'VN', '1000000', '31 Hà Nội', '31 Hà Nội', '2026-03-18 23:28:12', '2026-03-18 23:28:12'),
+(24, 'ORD-9KYLUIQHSO', 44, 1880000.00, NULL, NULL, NULL, NULL, NULL, 1880000.00, 1, 'momo', 'paid', NULL, 'completed', 'Thu Hồng', 'Trần', 'hong@gmail.com', '098765432', 'VN', '100000', '78 Hà Nội', '78 Hà Nội', '2026-03-20 02:16:01', '2026-03-20 02:29:11'),
+(25, 'ORD-PXPLMAPWHC', 45, 3905200.00, 1, NULL, NULL, NULL, NULL, 3945200.00, 2, 'cod', 'refunded', NULL, 'ended', 'Tiến', 'Trần', 'tientv002@gmail.com', '0378767654', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-12 20:02:29', '2026-09-16 08:18:37'),
+(26, 'ORD-B83NNEGXTB', 45, 3059700.00, 1, NULL, NULL, NULL, 305970.00, 2793730.00, 1, 'cod', 'unpaid', NULL, 'delivery_failed', 'Tien', 'Tran', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-12 20:09:54', '2026-09-16 08:57:15'),
+(27, 'ORD-TRGOWDE2EU', 45, 4800000.00, NULL, NULL, NULL, NULL, NULL, 4800000.00, 4, 'cod', 'unpaid', '2026-10-06 07:46:32', 'delivery_success', 'Linh', 'Thị', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-13 09:16:56', '2026-10-06 07:46:32'),
+(28, 'ORD-ARQQXUHUSE', 45, 3534400.00, 1, NULL, NULL, NULL, NULL, 3574400.00, 2, 'cod', 'unpaid', NULL, 'pending_confirmation', 'Linh', 'Thị', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-13 09:22:48', '2026-09-13 09:22:48'),
+(29, 'ORD-HRIQVW9VSU', 45, 2400000.00, 4, NULL, NULL, NULL, 30000.00, 2405000.00, 2, 'cod', 'unpaid', NULL, 'returning', 'Linh', 'Thị', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-13 10:26:57', '2026-09-15 08:48:50'),
+(30, 'ORD-JQX1BEK43T', 45, 7200000.00, NULL, NULL, NULL, NULL, 720000.00, 6480000.00, 6, 'cod', 'unpaid', NULL, 'pending_confirmation', 'Linh', 'Thị', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-14 09:23:51', '2026-09-14 09:23:51'),
+(31, 'ORD-LF7NBQOPOI', 45, 6000000.00, 5, NULL, NULL, NULL, NULL, 6080000.00, 5, 'cod', 'refunded', NULL, 'returned', 'Linh', 'Thị', 'nguyenlinh1203898@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-14 09:29:41', '2026-09-15 09:49:01'),
+(32, 'ORD-K55LGDHPWU', 45, 13200000.00, 5, NULL, NULL, NULL, 1320000.00, 11960000.00, 11, 'cod', 'paid', NULL, 'ended', 'Linh', 'Thị', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-14 22:35:58', '2026-09-16 08:14:56'),
+(33, 'ORD-EGYUPIYTAO', 45, 2045500.00, 4, NULL, NULL, NULL, NULL, 2080500.00, 2, 'cod', 'paid', NULL, 'ended', 'tientv002', 'tientv002', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-15 01:43:51', '2026-09-15 08:33:39'),
+(34, 'ORD-AXGIGAXY3W', 45, 2037200.00, 4, NULL, NULL, NULL, NULL, 2072200.00, 2, 'momo', 'pending', NULL, 'pending_confirmation', 'tientv002', 'tientv002', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-15 09:34:02', '2026-09-15 09:34:02'),
+(35, 'ORD-ZTYNXOBA0Y', 45, 7068800.00, 5, NULL, NULL, NULL, NULL, 7148800.00, 4, 'cod', 'paid', NULL, 'ended', 'tientv002', 'tientv002', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-18 07:44:28', '2026-09-18 07:47:41'),
+(36, 'ORD-89NQBSRQNM', 45, 1270000.00, 4, NULL, NULL, NULL, NULL, 1305000.00, 2, 'cod', 'unpaid', NULL, 'pending_confirmation', 'tientv002', 'tientv002', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-09-18 22:56:13', '2026-09-18 22:56:13'),
+(38, 'ORD-RUNCYQWPAY', 45, 2511000.00, 5, 'jt_express', NULL, NULL, NULL, 2591000.00, 1, 'cod', 'unpaid', NULL, 'shipping', 'tientv002', 'tientv002', 'tientv002@gmail.com', '0358613535', 'VN', NULL, '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', '2026-10-06 08:01:10', '2026-10-06 08:03:44');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `order_status_histories`
+--
+
+CREATE TABLE `order_status_histories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `order_id` bigint(20) UNSIGNED NOT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `changed_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `order_status_histories`
+--
+
+INSERT INTO `order_status_histories` (`id`, `order_id`, `status`, `payment_status`, `changed_by`, `created_at`, `updated_at`) VALUES
+(1, 19, 'completed', 'paid', NULL, '2025-03-27 06:23:38', '2025-03-27 06:23:38'),
+(2, 20, 'completed', 'paid', NULL, '2025-03-27 07:25:48', '2025-03-27 07:25:48'),
+(3, 21, 'completed', 'paid', NULL, '2026-03-15 06:59:58', '2026-03-15 06:59:58'),
+(4, 22, 'completed', 'paid', NULL, '2026-03-16 07:42:39', '2026-03-16 07:42:39'),
+(5, 23, 'pending_confirmation', 'unpaid', NULL, '2026-03-18 23:28:12', '2026-03-18 23:28:12'),
+(6, 24, 'completed', 'paid', NULL, '2026-03-20 02:16:01', '2026-03-20 02:16:01'),
+(7, 25, 'pending_confirmation', 'unpaid', NULL, '2026-09-12 20:02:29', '2026-09-12 20:02:29'),
+(8, 26, 'pending_confirmation', 'unpaid', NULL, '2026-09-12 20:09:54', '2026-09-12 20:09:54'),
+(9, 27, 'pending_confirmation', 'unpaid', NULL, '2026-09-13 09:16:56', '2026-09-13 09:16:56'),
+(10, 28, 'pending_confirmation', 'unpaid', NULL, '2026-09-13 09:22:48', '2026-09-13 09:22:48'),
+(11, 29, 'pending_confirmation', 'unpaid', NULL, '2026-09-13 10:26:57', '2026-09-13 10:26:57'),
+(12, 30, 'pending_confirmation', 'unpaid', NULL, '2026-09-14 09:23:51', '2026-09-14 09:23:51'),
+(13, 31, 'preparing', 'unpaid', NULL, '2026-09-14 09:29:41', '2026-09-14 09:29:41'),
+(14, 32, 'completed', 'paid', NULL, '2026-09-14 22:35:58', '2026-09-14 22:35:58'),
+(15, 33, 'ended', 'paid', NULL, '2026-09-15 01:43:51', '2026-09-15 01:43:51'),
+(16, 31, 'ready', 'unpaid', 33, '2026-09-15 08:39:01', '2026-09-15 08:39:01'),
+(17, 31, 'shipping', 'unpaid', 33, '2026-09-15 08:43:12', '2026-09-15 08:43:12'),
+(18, 29, 'preparing', 'unpaid', 33, '2026-09-15 08:44:00', '2026-09-15 08:44:00'),
+(19, 29, 'ready', 'unpaid', 33, '2026-09-15 08:47:48', '2026-09-15 08:47:48'),
+(20, 29, 'shipping', 'unpaid', 33, '2026-09-15 08:48:19', '2026-09-15 08:48:19'),
+(21, 29, 'delivery_failed', 'unpaid', 33, '2026-09-15 08:48:33', '2026-09-15 08:48:33'),
+(22, 29, 'returning', 'unpaid', 33, '2026-09-15 08:48:50', '2026-09-15 08:48:50'),
+(23, 34, 'pending_confirmation', 'pending', 45, '2026-09-15 09:34:02', '2026-09-15 09:34:02'),
+(24, 31, 'delivery_failed', 'paid', 33, '2026-09-15 09:48:33', '2026-09-15 09:48:33'),
+(25, 31, 'returning', 'paid', 33, '2026-09-15 09:48:50', '2026-09-15 09:48:50'),
+(26, 31, 'returned', 'refunded', 33, '2026-09-15 09:49:01', '2026-09-15 09:49:01'),
+(27, 25, 'preparing', 'unpaid', 33, '2026-09-16 07:39:32', '2026-09-16 07:39:32'),
+(28, 25, 'ready', 'unpaid', 33, '2026-09-16 07:39:47', '2026-09-16 07:39:47'),
+(29, 25, 'shipping', 'unpaid', 33, '2026-09-16 07:39:58', '2026-09-16 07:39:58'),
+(30, 25, 'delivery_failed', 'paid', 33, '2026-09-16 07:52:12', '2026-09-16 07:52:12'),
+(31, 25, 'returning', 'paid', 33, '2026-09-16 07:52:23', '2026-09-16 07:52:23'),
+(32, 25, 'returned', 'paid', 33, '2026-09-16 07:52:36', '2026-09-16 07:52:36'),
+(33, 32, 'ended', 'paid', 33, '2026-09-16 08:14:56', '2026-09-16 08:14:56'),
+(34, 25, 'ended', 'refunded', 33, '2026-09-16 08:18:37', '2026-09-16 08:18:37'),
+(35, 26, 'preparing', 'unpaid', 33, '2026-09-16 08:56:19', '2026-09-16 08:56:19'),
+(36, 26, 'ready', 'unpaid', 33, '2026-09-16 08:56:44', '2026-09-16 08:56:44'),
+(37, 26, 'shipping', 'unpaid', 33, '2026-09-16 08:57:03', '2026-09-16 08:57:03'),
+(38, 26, 'delivery_failed', 'unpaid', 33, '2026-09-16 08:57:15', '2026-09-16 08:57:15'),
+(39, 27, 'preparing', 'unpaid', 33, '2026-09-16 08:58:23', '2026-09-16 08:58:23'),
+(40, 27, 'ready', 'unpaid', 33, '2026-09-16 08:58:37', '2026-09-16 08:58:37'),
+(41, 27, 'shipping', 'unpaid', 33, '2026-09-16 08:58:51', '2026-09-16 08:58:51'),
+(42, 27, 'delivery_success', 'unpaid', 33, '2026-09-16 08:59:05', '2026-09-16 08:59:05'),
+(43, 35, 'pending_confirmation', 'unpaid', 45, '2026-09-18 07:44:28', '2026-09-18 07:44:28'),
+(44, 35, 'preparing', 'unpaid', 33, '2026-09-18 07:45:19', '2026-09-18 07:45:19'),
+(45, 35, 'ready', 'unpaid', 33, '2026-09-18 07:46:31', '2026-09-18 07:46:31'),
+(46, 35, 'shipping', 'unpaid', 33, '2026-09-18 07:46:47', '2026-09-18 07:46:47'),
+(47, 35, 'delivery_success', 'unpaid', 33, '2026-09-18 07:47:10', '2026-09-18 07:47:10'),
+(48, 35, 'completed', 'paid', 33, '2026-09-18 07:47:41', '2026-09-18 07:47:41'),
+(49, 35, 'ended', 'paid', 33, '2026-09-18 07:47:41', '2026-09-18 07:47:41'),
+(50, 36, 'pending_confirmation', 'unpaid', 45, '2026-09-18 22:56:13', '2026-09-18 22:56:13'),
+(54, 38, 'pending_confirmation', 'unpaid', 45, '2026-10-06 08:01:10', '2026-10-06 08:01:10'),
+(55, 38, 'preparing', 'unpaid', 33, '2026-10-06 08:01:51', '2026-10-06 08:01:51'),
+(56, 38, 'ready', 'unpaid', 33, '2026-10-06 08:03:06', '2026-10-06 08:03:06'),
+(57, 38, 'shipping', 'unpaid', 33, '2026-10-06 08:03:44', '2026-10-06 08:03:44');
 
 -- --------------------------------------------------------
 
@@ -480,6 +659,7 @@ CREATE TABLE `products` (
   `photo` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `stock` int(11) NOT NULL DEFAULT 1,
   `size` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'M',
+  `color_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `condition` enum('default','new','hot') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default',
   `status` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'inactive',
   `price` double(20,2) NOT NULL,
@@ -496,12 +676,14 @@ CREATE TABLE `products` (
 -- Đang đổ dữ liệu cho bảng `products`
 --
 
-INSERT INTO `products` (`id`, `title`, `slug`, `summary`, `description`, `photo`, `stock`, `size`, `condition`, `status`, `price`, `discount`, `is_featured`, `cat_id`, `child_cat_id`, `brand_id`, `created_at`, `updated_at`) VALUES
-(21, 'Tai nghe chụp tai Sony WH-CH720N', 'tai-nghe-chup-tai-sony-wh-ch720n', '<p>Chống ồn chủ động, pin tới 35 giờ, kết nối Bluetooth 5.2 và đệm tai êm cho học tập, làm việc.</p>', '<h3>Sony WH-CH720N</h3><p>Mẫu over-ear nhẹ, đeo lâu không bí và phù hợp cho người cần tập trung khi làm việc.</p><ul><li>Chống ồn chủ động và chế độ xuyên âm tiện chuyển đổi</li><li>Pin dài cho nhu cầu văn phòng và di chuyển</li><li>Mic rõ cho họp online và gọi điện</li></ul><p>Phù hợp cho sinh viên, dân văn phòng và người hay di chuyển.</p>', '/storage/photos/33/Product/tải xuống.jpg', 60, '1 & 2: 40.5 x 16.5 x 18 mm,3: 39.79 x 18.26 x 19.21 mm,Pro 2: 30.9 x 21.8 x 24 mm', 'new', 'active', 3290000.00, 7.00, 1, 26, NULL, 8, '2026-03-15 09:00:00', '2026-03-15 06:18:05'),
-(22, 'Tai nghe gaming JBL Quantum 100M2', 'tai-nghe-gaming-jbl-quantum-100m2', '<p>Âm thanh rõ tiếng bước chân, mic cần gập gọn và đệm tai mềm cho game thủ phổ thông.</p>', '<h3>JBL Quantum 100M2</h3><p>Mẫu tai nghe chụp tai có dây tối ưu cho game, học online và giải trí tại nhà.</p><ul><li>Micro tháo lắp nhanh, bắt giọng khá rõ</li><li>Đệm tai mềm, ôm vừa đầu</li><li>Chất âm thiên sáng, dễ nghe thoại và tiếng động trong game</li></ul><p>Thích hợp cho người mới bắt đầu hoặc cần một mẫu gaming headset dễ dùng.</p>', '/storage/photos/33/Product/tai_nghe_choang_dau_co_mic_gaming_jbl_quantum_100m2_1_64138a9ab8.jpg', 120, '', 'hot', 'active', 890000.00, 5.00, 1, 26, NULL, 9, '2026-03-15 09:05:00', '2026-03-15 05:52:28'),
-(24, 'Tai nghe true wireless Sennheiser CX Plus SE', 'tai-nghe-true-wireless-sennheiser-cx-plus-se', '<p>Chống ồn lai, âm chi tiết và cảm ứng mượt cho nhu cầu nghe nhạc hằng ngày.</p>', '<h3>Sennheiser CX Plus SE</h3><p>Mẫu true wireless cân bằng giữa chất âm, độ êm và khả năng sử dụng hằng ngày.</p><ul><li>Âm thanh chi tiết, vocal rõ</li><li>Chế độ chống ồn và xuyên âm linh hoạt</li><li>Form in-ear ôm tai, thao tác cảm ứng nhanh</li></ul><p>Rất hợp cho người nghe nhạc lâu, làm việc linh hoạt và cần chất âm chỉn chu.</p>', '/storage/photos/33/Product/tai-nghe-khong-day-sennheiser-cx-plus-min-mobile-quan-10-tphcm__1__1190dd2518f948609769017e18ee4e92_master.jpg', 75, '', 'new', 'active', 2790000.00, 10.00, 1, 27, NULL, 10, '2026-03-15 09:10:00', '2026-03-15 05:53:25'),
-(26, 'Tai nghe Bluetooth SoundPEATS Air4 Lite', 'tai-nghe-bluetooth-soundpeats-air4-lite', '<p>Thiết kế nửa in-ear thoáng tai, pin ổn định và độ trễ thấp khi xem video, chơi game nhẹ.</p>', '<h3>SoundPEATS Air4 Lite</h3><p>Mẫu true wireless dễ đeo, dễ ghép nối và phù hợp nhu cầu dùng hàng ngày trong tầm giá dễ tiếp cận.</p><ul><li>Kết nối nhanh, giữ tín hiệu ổn định</li><li>Đeo thoáng tai, phù hợp nghe lâu</li><li>Mic ổn cho gọi điện và học online</li></ul><p>Đây là lựa chọn hợp lý cho học sinh, sinh viên và người cần tai nghe Bluetooth gọn nhẹ.</p>', '/storage/photos/33/Product/tai-nghe-khong-day-soundpeats-air-4-lite_4_.png', 97, '', 'hot', 'active', 1200000.00, 0.00, 1, 27, NULL, 11, '2026-03-15 09:15:00', '2026-03-15 07:05:32'),
-(27, 'Bộ DAC USB-C và hộp đựng tai nghe cao cấp', 'bo-dac-usb-c-va-hop-dung-tai-nghe-cao-cap', '<p>Bộ phụ kiện gồm DAC USB-C, hộp chống sốc và móc treo giúp bảo quản tai nghe gọn gàng khi di chuyển.</p>', '<h3>Combo phụ kiện âm thanh</h3><p>Bộ phụ kiện dành cho người dùng tai nghe có dây hoặc tai nghe cao cấp cần bảo quản gọn và ổn định khi kết nối với điện thoại.</p><ul><li>DAC USB-C chuyển tín hiệu sạch và ổn định</li><li>Hộp cứng chống va đập khi mang theo</li><li>Móc treo tiện bố trí góc làm việc</li></ul><p>Phù hợp cho người muốn set up gọn gàng và bảo vệ thiết bị tốt hơn mỗi ngày.</p>', '/storage/photos/33/Product/images.jpg', 98, '1 & 2: 40.5 x 16.5 x 18 mm,3: 39.79 x 18.26 x 19.21 mm', 'default', 'active', 1880000.00, 6.00, 1, 28, NULL, 8, '2026-03-15 09:20:00', '2026-03-20 02:29:11');
+INSERT INTO `products` (`id`, `title`, `slug`, `summary`, `description`, `photo`, `stock`, `size`, `color_code`, `condition`, `status`, `price`, `discount`, `is_featured`, `cat_id`, `child_cat_id`, `brand_id`, `created_at`, `updated_at`) VALUES
+(21, 'Tai nghe chụp tai Sony WH-CH720N', 'tai-nghe-chup-tai-sony-wh-ch720n', '<p>Chống ồn chủ động, pin tới 35 giờ, kết nối Bluetooth 5.2 và đệm tai êm cho học tập, làm việc.</p>', '<h3>Sony WH-CH720N</h3><p>Mẫu over-ear nhẹ, đeo lâu không bí và phù hợp cho người cần tập trung khi làm việc.</p><ul><li>Chống ồn chủ động và chế độ xuyên âm tiện chuyển đổi</li><li>Pin dài cho nhu cầu văn phòng và di chuyển</li><li>Mic rõ cho họp online và gọi điện</li></ul><p>Phù hợp cho sinh viên, dân văn phòng và người hay di chuyển.</p>', '/storage/photos/33/Product/tải xuống.jpg', 60, '1 & 2: 40.5 x 16.5 x 18 mm,3: 39.79 x 18.26 x 19.21 mm,Pro 2: 30.9 x 21.8 x 24 mm', NULL, 'new', 'active', 3290000.00, 7.00, 1, 26, NULL, 8, '2026-03-15 09:00:00', '2026-03-15 06:18:05'),
+(22, 'Tai nghe gaming JBL Quantum 100M2', 'tai-nghe-gaming-jbl-quantum-100m2', '<p>Âm thanh rõ tiếng bước chân, mic cần gập gọn và đệm tai mềm cho game thủ phổ thông.</p>', '<h3>JBL Quantum 100M2</h3><p>Mẫu tai nghe chụp tai có dây tối ưu cho game, học online và giải trí tại nhà.</p><ul><li>Micro tháo lắp nhanh, bắt giọng khá rõ</li><li>Đệm tai mềm, ôm vừa đầu</li><li>Chất âm thiên sáng, dễ nghe thoại và tiếng động trong game</li></ul><p>Thích hợp cho người mới bắt đầu hoặc cần một mẫu gaming headset dễ dùng.</p>', '/storage/photos/33/Product/tai_nghe_choang_dau_co_mic_gaming_jbl_quantum_100m2_1_64138a9ab8.jpg', 119, '', NULL, 'hot', 'active', 890000.00, 5.00, 1, 26, NULL, 9, '2026-03-15 09:05:00', '2026-09-15 08:31:52'),
+(24, 'Tai nghe true wireless Sennheiser CX Plus SE', 'tai-nghe-true-wireless-sennheiser-cx-plus-se', '<p>Chống ồn lai, âm chi tiết và cảm ứng mượt cho nhu cầu nghe nhạc hằng ngày.</p>', '<h3>Sennheiser CX Plus SE</h3><p>Mẫu true wireless cân bằng giữa chất âm, độ êm và khả năng sử dụng hằng ngày.</p><ul><li>Âm thanh chi tiết, vocal rõ</li><li>Chế độ chống ồn và xuyên âm linh hoạt</li><li>Form in-ear ôm tai, thao tác cảm ứng nhanh</li></ul><p>Rất hợp cho người nghe nhạc lâu, làm việc linh hoạt và cần chất âm chỉn chu.</p>', '/storage/photos/33/Product/tai-nghe-khong-day-sennheiser-cx-plus-min-mobile-quan-10-tphcm__1__1190dd2518f948609769017e18ee4e92_master.jpg', 74, '', NULL, 'new', 'active', 2790000.00, 10.00, 1, 27, NULL, 10, '2026-03-15 09:10:00', '2026-10-06 08:01:51'),
+(26, 'Tai nghe Bluetooth SoundPEATS Air4 Lite', 'tai-nghe-bluetooth-soundpeats-air4-lite', '<p>Thiết kế nửa in-ear thoáng tai, pin ổn định và độ trễ thấp khi xem video, chơi game nhẹ.</p>', '<h3>SoundPEATS Air4 Lite</h3><p>Mẫu true wireless dễ đeo, dễ ghép nối và phù hợp nhu cầu dùng hàng ngày trong tầm giá dễ tiếp cận.</p><ul><li>Kết nối nhanh, giữ tín hiệu ổn định</li><li>Đeo thoáng tai, phù hợp nghe lâu</li><li>Mic ổn cho gọi điện và học online</li></ul><p>Đây là lựa chọn hợp lý cho học sinh, sinh viên và người cần tai nghe Bluetooth gọn nhẹ.</p>', '/storage/photos/33/Product/tai-nghe-khong-day-soundpeats-air-4-lite_4_.png', 81, '', NULL, 'hot', 'active', 1200000.00, 0.00, 1, 27, NULL, 11, '2026-03-15 09:15:00', '2026-09-16 08:59:05'),
+(27, 'Bộ DAC USB-C và hộp đựng tai nghe cao cấp', 'bo-dac-usb-c-va-hop-dung-tai-nghe-cao-cap', '<p>Bộ phụ kiện gồm DAC USB-C, hộp chống sốc và móc treo giúp bảo quản tai nghe gọn gàng khi di chuyển.</p>', '<h3>Combo phụ kiện âm thanh</h3><p>Bộ phụ kiện dành cho người dùng tai nghe có dây hoặc tai nghe cao cấp cần bảo quản gọn và ổn định khi kết nối với điện thoại.</p><ul><li>DAC USB-C chuyển tín hiệu sạch và ổn định</li><li>Hộp cứng chống va đập khi mang theo</li><li>Móc treo tiện bố trí góc làm việc</li></ul><p>Phù hợp cho người muốn set up gọn gàng và bảo vệ thiết bị tốt hơn mỗi ngày.</p>', '/storage/photos/33/Product/images.jpg', 254, '1 & 2: 40.5 x 16.5 x 18 mm,3: 39.79 x 18.26 x 19.21 mm', NULL, 'default', 'active', 1880000.00, 6.00, 1, 28, NULL, 8, '2026-03-15 09:20:00', '2026-10-06 07:31:34'),
+(30, 'Tai nghe', 'tai-nghe', '<p>Tai nghe</p>', '<p>Tai nghe</p>', '/storage/photos/33/Product/tai-nghe-khong-day-soundpeats-air-4-lite_4_.png', 20, '', NULL, 'default', 'active', 300000.00, 10.00, 1, 26, NULL, 9, '2026-09-15 00:30:42', '2026-10-06 07:53:00'),
+(31, 'Tai nghe', 'tai-nghe-2609191511-108', '<p>Tai nghe</p>', '<p>Tai nghe</p>', '/storage/photos/33/Ảnh chụp màn hình 2026-03-15 201307.png', 50, '', '#FF0000,#000000', 'default', 'active', 1000000.00, 0.00, 1, 26, NULL, 9, '2026-09-18 22:15:11', '2026-09-18 22:55:07');
 
 -- --------------------------------------------------------
 
@@ -600,26 +782,34 @@ CREATE TABLE `users` (
   `status` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `checkout_first_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_country` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_address1` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_address2` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_post_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `photo`, `role`, `provider`, `provider_id`, `status`, `remember_token`, `created_at`, `updated_at`) VALUES
-(33, 'Admin', 'admin@gmail.com', NULL, '$2y$10$7U6jQWXQz2Tcvl.t3FZiUu9xVZ7w13qliKRzXBD65akufAfzrnwmq', '/storage/photos/33/User/logo-comics-food-bar-hd-png.png', 'admin', NULL, NULL, 'active', 'U6nx5DCk8jyHQpAwFt3KjFhbbGqC5nuobZgi7WKJtvPjlTeAjZg9lJdVKAQH', NULL, '2025-03-27 04:28:08'),
-(34, 'Linh', 'user@gmail.com', NULL, '$2y$10$An0KdWoqcI1JK8Fj7Db2burUfxtf2xbNSnLDr.4mbsUqvlR7E954.', '/storage/photos/33/User/4-ceo-viet-tuoi-suu-tai-gioi-dang-dieu-hanh-doanh-nghiep-nao.jpg', 'user', NULL, NULL, 'active', NULL, '2022-04-25 09:04:15', '2022-04-25 09:05:00'),
-(35, 'Thịnh', 'thinhphuongxa1@gmail.com', NULL, '$2y$10$W8jNnJgUSG5zfXjWPW6KTeaM9uI2U0jOxozG/N0Ody6rf1.X/bssO', '/storage/photos/33/User/logo-comics-food-bar-hd-png.png', 'user', NULL, NULL, 'active', NULL, '2022-04-25 09:04:15', '2022-04-25 09:04:15'),
-(36, 'Minh', 'minh@gmail.com', NULL, '$2y$10$AtPfHsxPzg7P8vooZEQBPeIc1mEpWh.sIOG1LNoAWBf9MytBDp5Dm', '/storage/photos/33/User/4-ceo-viet-tuoi-suu-tai-gioi-dang-dieu-hanh-doanh-nghiep-nao.jpg', 'user', NULL, NULL, 'active', NULL, '2022-04-27 02:05:54', '2022-04-28 11:11:36'),
-(37, 'user1', 'user1@gmail.com', NULL, '$2y$10$kxkc4NscWvCxh0t/7nYIqOCOSJPwfrMLmawfwmxnJlCAFcbLvZWfC', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-11 10:04:16', '2022-05-11 10:04:16'),
-(38, 'user2', 'user2@gmail.com', NULL, '$2y$10$RwduGWnyr96mK.DqvYi5Cex7ZujywKNJQ9lTfR9tuds36mUvc7Jie', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-19 08:11:39', '2022-05-19 08:11:39'),
-(39, 'user3', 'user3@gmail.com', NULL, '$2y$10$DCyzfOKCmgt2njr8D7Z.ZeZ2pFVly/chBrJeqJFwYBjXipliyPs26', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-20 08:12:05', '2022-05-20 08:12:05'),
-(40, 'user4', 'user4@gmail.com', NULL, '$2y$10$IbppthaqLsoS9QOEH3gWtu7cPiEzhY.lUeEFEz4EGVXBivJL8kN8y', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-21 08:12:28', '2022-05-21 08:12:28'),
-(41, 'huyen', 'huyen@gmail.com', NULL, '$2y$10$7U6jQWXQz2Tcvl.t3FZiUu9xVZ7w13qliKRzXBD65akufAfzrnwmq', NULL, 'user', NULL, NULL, 'active', NULL, '2025-03-27 03:44:50', '2025-03-27 03:44:50'),
-(42, 'manhdieu', 'manhdieu@gmail.com', NULL, '$2y$10$k8bzC0WFjVIQSlPIBx3h0OLtRLVNQmq173vAIsWTP8gIZX9DLbHSC', NULL, 'user', NULL, NULL, 'active', NULL, '2025-03-27 07:23:18', '2025-03-27 07:23:18'),
-(43, 'canh', 'canh@gmail.com', NULL, '$2y$10$FTM9COFVREVn4Wgfbh3B6.BGmD5q/MkMMDh5nSNw29Ev8InxP/azi', NULL, 'user', NULL, NULL, 'active', NULL, '2026-03-16 07:40:30', '2026-03-16 07:40:30'),
-(44, 'hong', 'hong@gmail.com', NULL, '$2y$10$8ZJJvQuxbtEF/Tu9jO8ACe9voQj1vpNsBWA0Jzckthtai5y2LWKJ6', NULL, 'user', NULL, NULL, 'active', NULL, '2026-03-20 02:13:08', '2026-03-20 02:13:08');
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `photo`, `role`, `provider`, `provider_id`, `status`, `remember_token`, `created_at`, `updated_at`, `checkout_first_name`, `checkout_last_name`, `checkout_phone`, `checkout_country`, `checkout_address1`, `checkout_address2`, `checkout_post_code`) VALUES
+(33, 'Admin', 'admin@gmail.com', NULL, '$2y$10$7U6jQWXQz2Tcvl.t3FZiUu9xVZ7w13qliKRzXBD65akufAfzrnwmq', '/storage/photos/33/User/logo-comics-food-bar-hd-png.png', 'admin', NULL, NULL, 'active', 'bWdKBffZnYfDHgoKnQc2eP4xOm215T1dx4r6993w6VccXbkS4Mty63sbBDsy', NULL, '2025-03-27 04:28:08', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(34, 'Linh', 'user@gmail.com', NULL, '$2y$10$An0KdWoqcI1JK8Fj7Db2burUfxtf2xbNSnLDr.4mbsUqvlR7E954.', '/storage/photos/33/User/4-ceo-viet-tuoi-suu-tai-gioi-dang-dieu-hanh-doanh-nghiep-nao.jpg', 'user', NULL, NULL, 'active', NULL, '2022-04-25 09:04:15', '2022-04-25 09:05:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(35, 'Thịnh', 'thinhphuongxa1@gmail.com', NULL, '$2y$10$W8jNnJgUSG5zfXjWPW6KTeaM9uI2U0jOxozG/N0Ody6rf1.X/bssO', '/storage/photos/33/User/logo-comics-food-bar-hd-png.png', 'user', NULL, NULL, 'active', NULL, '2022-04-25 09:04:15', '2022-04-25 09:04:15', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(36, 'Minh', 'minh@gmail.com', NULL, '$2y$10$AtPfHsxPzg7P8vooZEQBPeIc1mEpWh.sIOG1LNoAWBf9MytBDp5Dm', '/storage/photos/33/User/4-ceo-viet-tuoi-suu-tai-gioi-dang-dieu-hanh-doanh-nghiep-nao.jpg', 'user', NULL, NULL, 'active', NULL, '2022-04-27 02:05:54', '2022-04-28 11:11:36', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(37, 'user1', 'user1@gmail.com', NULL, '$2y$10$kxkc4NscWvCxh0t/7nYIqOCOSJPwfrMLmawfwmxnJlCAFcbLvZWfC', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-11 10:04:16', '2022-05-11 10:04:16', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(38, 'user2', 'user2@gmail.com', NULL, '$2y$10$RwduGWnyr96mK.DqvYi5Cex7ZujywKNJQ9lTfR9tuds36mUvc7Jie', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-19 08:11:39', '2022-05-19 08:11:39', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(39, 'user3', 'user3@gmail.com', NULL, '$2y$10$DCyzfOKCmgt2njr8D7Z.ZeZ2pFVly/chBrJeqJFwYBjXipliyPs26', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-20 08:12:05', '2022-05-20 08:12:05', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(40, 'user4', 'user4@gmail.com', NULL, '$2y$10$IbppthaqLsoS9QOEH3gWtu7cPiEzhY.lUeEFEz4EGVXBivJL8kN8y', NULL, 'user', NULL, NULL, 'active', NULL, '2022-05-21 08:12:28', '2022-05-21 08:12:28', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(41, 'huyen', 'huyen@gmail.com', NULL, '$2y$10$7U6jQWXQz2Tcvl.t3FZiUu9xVZ7w13qliKRzXBD65akufAfzrnwmq', NULL, 'user', NULL, NULL, 'active', NULL, '2025-03-27 03:44:50', '2025-03-27 03:44:50', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(42, 'manhdieu', 'manhdieu@gmail.com', NULL, '$2y$10$k8bzC0WFjVIQSlPIBx3h0OLtRLVNQmq173vAIsWTP8gIZX9DLbHSC', NULL, 'user', NULL, NULL, 'active', NULL, '2025-03-27 07:23:18', '2025-03-27 07:23:18', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(43, 'canh', 'canh@gmail.com', NULL, '$2y$10$FTM9COFVREVn4Wgfbh3B6.BGmD5q/MkMMDh5nSNw29Ev8InxP/azi', NULL, 'user', NULL, NULL, 'active', NULL, '2026-03-16 07:40:30', '2026-03-16 07:40:30', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(44, 'hong', 'hong@gmail.com', NULL, '$2y$10$8ZJJvQuxbtEF/Tu9jO8ACe9voQj1vpNsBWA0Jzckthtai5y2LWKJ6', NULL, 'user', NULL, NULL, 'active', NULL, '2026-03-20 02:13:08', '2026-03-20 02:13:08', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(45, 'tientv002', 'tientv002@gmail.com', NULL, '$2y$10$1neNg9t6zE2XngSyoR0zXe9tHc0S.eEyrAlDm5uljXBtmYlqXEOvG', NULL, 'user', NULL, NULL, 'active', NULL, '2026-09-12 19:42:26', '2026-09-15 01:43:51', 'tientv002', 'tientv002', '0358613535', 'VN', '54A NGUYEN CHI THANH, HA NOI', '54A NGUYEN CHI THANH, HA NOI', NULL);
 
 -- --------------------------------------------------------
 
@@ -638,6 +828,13 @@ CREATE TABLE `wishlists` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `wishlists`
+--
+
+INSERT INTO `wishlists` (`id`, `product_id`, `cart_id`, `user_id`, `price`, `quantity`, `amount`, `created_at`, `updated_at`) VALUES
+(6, 26, 52, 45, 1200000.00, 1, 1200000.00, '2026-09-14 22:41:43', '2026-09-14 22:42:53');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -695,6 +892,22 @@ ALTER TABLE `failed_jobs`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Chỉ mục cho bảng `inventory_receipts`
+--
+ALTER TABLE `inventory_receipts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `inventory_receipts_receipt_number_unique` (`receipt_number`),
+  ADD KEY `inventory_receipts_received_by_foreign` (`received_by`);
+
+--
+-- Chỉ mục cho bảng `inventory_receipt_items`
+--
+ALTER TABLE `inventory_receipt_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `inventory_receipt_items_inventory_receipt_id_foreign` (`inventory_receipt_id`),
+  ADD KEY `inventory_receipt_items_product_id_foreign` (`product_id`);
+
+--
 -- Chỉ mục cho bảng `messages`
 --
 ALTER TABLE `messages`
@@ -721,6 +934,14 @@ ALTER TABLE `orders`
   ADD UNIQUE KEY `orders_order_number_unique` (`order_number`),
   ADD KEY `orders_user_id_foreign` (`user_id`),
   ADD KEY `orders_shipping_id_foreign` (`shipping_id`);
+
+--
+-- Chỉ mục cho bảng `order_status_histories`
+--
+ALTER TABLE `order_status_histories`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_status_histories_changed_by_foreign` (`changed_by`),
+  ADD KEY `order_status_histories_order_id_status_index` (`order_id`,`status`);
 
 --
 -- Chỉ mục cho bảng `password_resets`
@@ -826,7 +1047,7 @@ ALTER TABLE `brands`
 -- AUTO_INCREMENT cho bảng `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT cho bảng `categories`
@@ -853,6 +1074,18 @@ ALTER TABLE `failed_jobs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT cho bảng `inventory_receipts`
+--
+ALTER TABLE `inventory_receipts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT cho bảng `inventory_receipt_items`
+--
+ALTER TABLE `inventory_receipt_items`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT cho bảng `messages`
 --
 ALTER TABLE `messages`
@@ -862,13 +1095,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT cho bảng `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+
+--
+-- AUTO_INCREMENT cho bảng `order_status_histories`
+--
+ALTER TABLE `order_status_histories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT cho bảng `posts`
@@ -898,7 +1137,7 @@ ALTER TABLE `post_tags`
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT cho bảng `product_reviews`
@@ -922,13 +1161,13 @@ ALTER TABLE `shippings`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT cho bảng `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -950,11 +1189,31 @@ ALTER TABLE `categories`
   ADD CONSTRAINT `categories_parent_id_foreign` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 
 --
+-- Các ràng buộc cho bảng `inventory_receipts`
+--
+ALTER TABLE `inventory_receipts`
+  ADD CONSTRAINT `inventory_receipts_received_by_foreign` FOREIGN KEY (`received_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `inventory_receipt_items`
+--
+ALTER TABLE `inventory_receipt_items`
+  ADD CONSTRAINT `inventory_receipt_items_inventory_receipt_id_foreign` FOREIGN KEY (`inventory_receipt_id`) REFERENCES `inventory_receipts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `inventory_receipt_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL;
+
+--
 -- Các ràng buộc cho bảng `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_shipping_id_foreign` FOREIGN KEY (`shipping_id`) REFERENCES `shippings` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `orders_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `order_status_histories`
+--
+ALTER TABLE `order_status_histories`
+  ADD CONSTRAINT `order_status_histories_changed_by_foreign` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `order_status_histories_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `posts`

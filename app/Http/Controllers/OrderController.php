@@ -324,31 +324,45 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $order = Order::with('cart.product')->findOrFail($id);
+        $order = Order::with(['cart.product', 'statusHistory'])->findOrFail($id);
         $allowedStatuses = array_keys(Order::ORDER_STATUS_LABELS);
+        $shipmentStarted = $order->status === 'shipping' || $order->statusHistory->contains('status', 'shipping');
         $validationRules = [
             'status'=>'required|in:'.implode(',', $allowedStatuses),
             'payment_status'=>'nullable|in:'.implode(',', array_keys(Order::PAYMENT_STATUS_LABELS)),
         ];
 
-        if (!$order->shipping_provider) {
+        if (!$shipmentStarted) {
             $validationRules['shipping_provider'] = 'required_if:status,ready,shipping|nullable|in:'.implode(',', array_keys(Order::SHIPPING_PROVIDERS));
         }
+        $requiresCarrierTracking = !$shipmentStarted
+            && $request->input('status') === 'shipping'
+            && $request->input('shipping_provider') !== 'shop_delivery';
+        $validationRules['tracking_number'] = ($requiresCarrierTracking ? 'required' : 'nullable').'|string|max:191';
+        $validationRules['tracking_url'] = 'nullable|url|max:2048';
 
         $this->validate($request, $validationRules);
 
-        if ($order->shipping_provider
-            && $request->filled('shipping_provider')
-            && $request->input('shipping_provider') !== $order->shipping_provider) {
-            request()->session()->flash('error', 'Đơn vị vận chuyển đã được chốt và không thể thay đổi.');
-            return redirect()->back()->withInput();
+        foreach (['shipping_provider', 'tracking_number', 'tracking_url'] as $shipmentField) {
+            if ($shipmentStarted
+                && $order->{$shipmentField}
+                && $request->exists($shipmentField)
+                && (string) $request->input($shipmentField) !== (string) $order->{$shipmentField}) {
+                request()->session()->flash('error', 'Thông tin vận đơn đã được chốt và không thể thay đổi.');
+                return redirect()->back()->withInput();
+            }
         }
-        $data = $request->only(['status', 'payment_status', 'shipping_provider']);
-        if ($order->shipping_provider) {
-            unset($data['shipping_provider']);
-        }
+        $data = $request->only(['status', 'payment_status']);
         $previousStatus = trim((string) $order->status);
         $nextStatus = trim((string) $request->status);
+
+        if (in_array($nextStatus, ['ready', 'shipping'], true) || $shipmentStarted) {
+            foreach (['shipping_provider', 'tracking_number', 'tracking_url'] as $shipmentField) {
+                if ($request->exists($shipmentField)) {
+                    $data[$shipmentField] = $request->input($shipmentField) ?: null;
+                }
+            }
+        }
 
         if (!in_array($nextStatus, Order::ORDER_STATUS_TRANSITIONS[$previousStatus] ?? [$previousStatus], true)) {
             request()->session()->flash('error', 'Trạng thái mới không hợp lệ với tiến trình hiện tại.');
